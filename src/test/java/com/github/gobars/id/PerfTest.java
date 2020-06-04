@@ -17,7 +17,7 @@ public class PerfTest {
       last = n;
     }
 
-    // 56ms 100000
+    // 39ms 100000
     System.out.println((System.currentTimeMillis() - start) + "ms " + SIZE);
   }
 }

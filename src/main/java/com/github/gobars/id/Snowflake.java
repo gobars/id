@@ -21,7 +21,7 @@ public class Snowflake implements Next {
   /** 保留backwardId和lastTime */
   private final Map<Long, Long> backwardIdLastTimes;
 
-  @Getter protected long lastMillis;
+  @Getter protected long lastTs;
   @Getter @Setter protected long sequence;
   private long backwardId;
 
@@ -38,17 +38,17 @@ public class Snowflake implements Next {
   public synchronized long next() {
     long cur = timeBackDeal();
 
-    if (lastMillis == cur) {
+    if (lastTs == cur) {
       sequence = ++sequence & conf.getMaxSequence();
       if (sequence == 0L) {
-        cur = tilNextMillis(lastMillis);
+        cur = tilNext(lastTs);
       }
     } else {
       sequence = 0L;
     }
 
-    lastMillis = cur;
-    backwardIdLastTimes.put(backwardId, lastMillis);
+    lastTs = cur;
+    backwardIdLastTimes.put(backwardId, lastTs);
 
     return cur - conf.getEpoch() << conf.getTimestampShift() & conf.getMaxTimestamp()
         | backwardId << conf.getBackwardShift()
@@ -57,29 +57,29 @@ public class Snowflake implements Next {
   }
 
   private long timeBackDeal() {
-    long cur = currentTimeMillis();
-    if (cur >= lastMillis) {
+    long cur = currentTimeMillis() / conf.getRoundMillis();
+    if (cur >= lastTs) {
       return cur;
     }
 
-    long diff = lastMillis - cur;
+    long diff = lastTs - cur;
     // 时间回拨 小于 x 秒时，直接等待diff秒后重新获取时间
-    if (diff <= conf.getMaxBackwardMillis()) {
-      Util.sleep(diff);
-      cur = currentTimeMillis();
+    if (diff <= conf.getMaxBackwardMillis() / conf.getRoundMillis()) {
+      Util.sleep(diff * conf.getRoundMillis());
+      cur = currentTimeMillis() / conf.getRoundMillis();
     }
 
     // 依然落后上次时间
-    if (cur < lastMillis) {
+    if (cur < lastTs) {
       rotateBackwardId(cur);
     }
 
     return cur;
   }
 
-  private void rotateBackwardId(long currentMillis) {
+  private void rotateBackwardId(long cur) {
     for (val e : backwardIdLastTimes.entrySet()) {
-      if (e.getValue() <= currentMillis && e.getKey() != this.backwardId) {
+      if (e.getValue() <= cur && e.getKey() != this.backwardId) {
         this.backwardId = e.getKey();
         Util.saveBackwardId(this.workerId, this.backwardId);
         return;
@@ -89,18 +89,19 @@ public class Snowflake implements Next {
     // 如果所有BackwardId都处于时钟回拨, 那么抛出异常
     throw new IllegalStateException(
         "Clock is moving backwards, current time is "
-            + currentMillis
+            + cur * conf.getRoundMillis()
             + " mills, workerId map = "
             + backwardIdLastTimes);
   }
 
-  protected long tilNextMillis(long lastMillis) {
-    long millis = currentTimeMillis();
-    while (millis <= lastMillis) {
-      millis = currentTimeMillis();
+  protected long tilNext(long last) {
+    long cur = currentTimeMillis() / conf.getRoundMillis();
+    while (cur <= last) {
+      Util.sleep(conf.getRoundMillis());
+      cur = currentTimeMillis() / conf.getRoundMillis();
     }
 
-    return millis;
+    return cur;
   }
 
   protected long currentTimeMillis() {
@@ -114,6 +115,8 @@ public class Snowflake implements Next {
     long epoch;
     /** 时间戳占用比特位数 */
     int timestampBits;
+    /** 规整到的时间单位 */
+    int roundMillis;
     /** 时间回拨序号占用比特位数 */
     int backwardBits;
     /** worker占用比特位数 */
@@ -138,18 +141,20 @@ public class Snowflake implements Next {
 
     public Conf() {
       // 1591173022000L is 2020-06-03 16:30:22
-      this(1591173022000L, 41, 2, 8, 12, 1000);
+      this(1591173022000L, 41, 1, 2, 8, 12, 1000);
     }
 
     public Conf(
         long epoch,
         int timestampBits,
+        int roundMillis,
         int backwardBits,
         int workerBits,
         int sequenceBits,
         long maxBackwardMillis) {
       this.epoch = epoch;
       this.timestampBits = timestampBits;
+      this.roundMillis = roundMillis;
       this.backwardBits = backwardBits;
       this.workerBits = workerBits;
       this.sequenceBits = sequenceBits;
