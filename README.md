@@ -29,11 +29,12 @@ long bizID = Id.next();
 
 snowflake 改进:
 
-sign | timestamp |backwardId| workerId|sequence
-:---:  | :---:      | :---: | :---:     |:---:
-1bit | 41bit    |2 bit | 8 bit  |12 bit
-符号位 | 时间戳    |时间回拨序号 | 工作机器ID  |同一个时间戳内产生的不同序列
-
+API|sign | timestamp |backwardId| workerId|sequence| limit |remark
+:---:  |:---:  | :---:      | :---: | :---:     |:---:|:---:|---
+-|符号位 | 时间戳    |时间回拨序号 | 工作机器ID  |同一个时间戳内产生的不同序列|限制| 备注
+Id|1 bit | 41bit（ms)    |2 bit | 8 bit  |12 bit |每毫秒单节点最大4096个ID| 标准snowflake中10位workerId抽出2位作为时间回拨序号， 2^41/1000/60/60/24/365.5≈69年
+Id12/1 bit | 27 bit (10s) | 2bit | 3 bit | 7 bit |每10秒单节点最大128个ID| 产生最大2^39=549,755,813,888（共12位数字）序列，2^27/6/60/24/365.5 ≈42年
+    
 时间回拨问题解决方案
 
 1. `最新当前时间` - `上次获取的时间` <= 1s， 直接等待1s
