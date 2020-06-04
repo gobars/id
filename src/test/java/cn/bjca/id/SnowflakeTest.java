@@ -22,19 +22,6 @@ public class SnowflakeTest {
     new File(workerBackwardIdFile(randWorkerId)).delete();
   }
 
-  static class TimebackSnowflake extends Snowflake {
-    long currentMillis;
-
-    public TimebackSnowflake(Conf conf, long workerId) {
-      super(conf, workerId);
-    }
-
-    @Override
-    protected long currentTimeMillis() {
-      return currentMillis;
-    }
-  }
-
   @Test
   public void backward() {
     val sf = new TimebackSnowflake(new Snowflake.Conf(), 0);
@@ -56,5 +43,18 @@ public class SnowflakeTest {
     assertEquals(8, conf.getWorkerBits());
     assertEquals(255, conf.getMaxWorkerId());
     assertEquals(4095, conf.getMaxSequence());
+  }
+
+  static class TimebackSnowflake extends Snowflake {
+    long currentMillis;
+
+    public TimebackSnowflake(Conf conf, long workerId) {
+      super(conf, workerId);
+    }
+
+    @Override
+    protected long currentTimeMillis() {
+      return currentMillis;
+    }
   }
 }

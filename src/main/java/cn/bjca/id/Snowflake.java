@@ -18,10 +18,12 @@ import lombok.val;
 public class Snowflake implements Next {
   private final Conf conf;
   private final long workerId;
-  private long backwardId;
-
   /** 保留backwardId和lastTime */
   private final Map<Long, Long> backwardIdLastTimes;
+
+  @Getter protected long lastMillis;
+  @Getter @Setter protected long sequence;
+  private long backwardId;
 
   public Snowflake(Conf conf, long workerId) {
     this.conf = conf;
@@ -36,8 +38,26 @@ public class Snowflake implements Next {
     log.debug("IdGenerator created for config {}, workerId {}", conf, workerId);
   }
 
-  @Getter protected long lastMillis;
-  @Getter @Setter protected long sequence;
+  static long readBackwardId(long workerId) {
+    String file = workerBackwardIdFile(workerId);
+    try {
+      return Long.parseLong(Files.readFile(file));
+    } catch (FileNotFoundException e) {
+      // ignore
+    } catch (Exception e) {
+      log.warn("failed to read {}", file, e);
+    }
+
+    return 0L;
+  }
+
+  static void saveBackwardId(long workerId, long backwardId) {
+    Files.saveFile(workerBackwardIdFile(workerId), String.valueOf(backwardId));
+  }
+
+  static String workerBackwardIdFile(long workerId) {
+    return Files.homeFile(".worker.backwardId." + workerId);
+  }
 
   @Override
   public synchronized long next() {
@@ -99,27 +119,6 @@ public class Snowflake implements Next {
             + currentMillis
             + " milliseconds, workerId map = "
             + backwardIdLastTimes);
-  }
-
-  static long readBackwardId(long workerId) {
-    String file = workerBackwardIdFile(workerId);
-    try {
-      return Long.parseLong(Files.readFile(file));
-    } catch (FileNotFoundException e) {
-      // ignore
-    } catch (Exception e) {
-      log.warn("failed to read {}", file, e);
-    }
-
-    return 0L;
-  }
-
-  static void saveBackwardId(long workerId, long backwardId) {
-    Files.saveFile(workerBackwardIdFile(workerId), String.valueOf(backwardId));
-  }
-
-  static String workerBackwardIdFile(long workerId) {
-    return Files.homeFile(".worker.backwardId." + workerId);
   }
 
   void sleep(long millis) {

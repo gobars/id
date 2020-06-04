@@ -13,7 +13,9 @@ public class Id {
   private Next next;
 
   static {
-    val c = new WorkerIdComposite(new WorkerIdEnv(), new WorkerIdIp(), new WorkerIdRandom());
+    val c =
+        new WorkerIdComposite(
+            new WorkerIdEnv(), new WorkerIdHostname(), new WorkerIdIp(), new WorkerIdRandom());
     configure(new Snowflake(new Snowflake.Conf(), c.workerId()));
   }
 

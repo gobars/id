@@ -16,6 +16,13 @@ id generator with time backward-compatible.
 long bizID = Id.next();
 ```
 
+## WorkerId 获取顺序
+
+1. 系统属性或者环境变量 `WORKERID`
+1. hostname命名的最后数字部分，例如app-11中的11
+1. IPv4或者IPv6最后一个Byte
+1. 随机获取
+
 ## 原理
 
 snowflake 改进:
