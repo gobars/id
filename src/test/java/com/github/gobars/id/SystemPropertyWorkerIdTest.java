@@ -1,10 +1,10 @@
 package com.github.gobars.id;
 
-import static com.google.common.truth.Truth.assertThat;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.contrib.java.lang.system.ProvideSystemProperty;
+
+import static com.google.common.truth.Truth.assertThat;
 
 public class SystemPropertyWorkerIdTest {
   @Rule

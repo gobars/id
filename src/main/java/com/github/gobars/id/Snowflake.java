@@ -1,13 +1,13 @@
 package com.github.gobars.id;
 
-import java.io.FileNotFoundException;
-import java.util.HashMap;
-import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 雪花算法实现
@@ -28,87 +28,60 @@ public class Snowflake implements Next {
   public Snowflake(Conf conf, long workerId) {
     this.conf = conf;
     this.workerId = workerId & conf.getMaxWorkerId();
-    this.backwardId = readBackwardId(workerId);
-    this.backwardIdLastTimes = new HashMap<Long, Long>((int) conf.getMaxBackwardId());
+    this.backwardId = Util.readBackwardId(workerId);
+    this.backwardIdLastTimes = conf.initBackwardIdLastTimesMap();
 
-    for (long i = 0; i <= conf.getMaxBackwardId(); i++) {
-      this.backwardIdLastTimes.put(i, 0L);
-    }
-
-    log.debug("IdGenerator created for config {}, workerId {}", conf, workerId);
-  }
-
-  static long readBackwardId(long workerId) {
-    String file = workerBackwardIdFile(workerId);
-    try {
-      return Long.parseLong(Files.readFile(file));
-    } catch (FileNotFoundException e) {
-      // ignore
-    } catch (Exception e) {
-      log.warn("failed to read {}", file, e);
-    }
-
-    return 0L;
-  }
-
-  static void saveBackwardId(long workerId, long backwardId) {
-    Files.saveFile(workerBackwardIdFile(workerId), String.valueOf(backwardId));
-  }
-
-  static String workerBackwardIdFile(long workerId) {
-    return Files.homeFile(".worker.backwardId." + workerId);
+    log.debug("Snowflake created from conf {} with workerId {}", conf, workerId);
   }
 
   @Override
   public synchronized long next() {
-    long currentMillis = timeBackDeal();
+    long cur = timeBackDeal();
 
-    if (lastMillis == currentMillis) {
+    if (lastMillis == cur) {
       sequence = ++sequence & conf.getMaxSequence();
       if (sequence == 0L) {
-        currentMillis = tilNextMillis(lastMillis);
+        cur = tilNextMillis(lastMillis);
       }
     } else {
       sequence = 0L;
     }
 
-    lastMillis = currentMillis;
+    lastMillis = cur;
     backwardIdLastTimes.put(backwardId, lastMillis);
 
-    long diff = currentMillis - conf.getEpoch();
-
-    return (diff << conf.getTimestampShift())
-        | (backwardId << conf.getBackwardShift())
-        | (workerId << conf.getWorkerIdShift())
+    return cur - conf.getEpoch() << conf.getTimestampShift() & conf.getMaxTimestamp()
+        | backwardId << conf.getBackwardShift()
+        | workerId << conf.getWorkerIdShift()
         | sequence;
   }
 
   private long timeBackDeal() {
-    long currentMillis = currentTimeMillis();
-    if (currentMillis >= lastMillis) {
-      return currentMillis;
+    long cur = currentTimeMillis();
+    if (cur >= lastMillis) {
+      return cur;
     }
 
-    long diff = lastMillis - currentMillis;
+    long diff = lastMillis - cur;
     // 时间回拨 小于 x 秒时，直接等待diff秒后重新获取时间
     if (diff <= conf.getMaxBackwardMillis()) {
-      sleep(diff);
-      currentMillis = currentTimeMillis();
+      Util.sleep(diff);
+      cur = currentTimeMillis();
     }
 
     // 依然落后上次时间
-    if (currentMillis < lastMillis) {
-      rotateBackwardId(currentMillis);
+    if (cur < lastMillis) {
+      rotateBackwardId(cur);
     }
 
-    return currentMillis;
+    return cur;
   }
 
   private void rotateBackwardId(long currentMillis) {
     for (val e : backwardIdLastTimes.entrySet()) {
       if (e.getValue() <= currentMillis && e.getKey() != this.backwardId) {
         this.backwardId = e.getKey();
-        saveBackwardId(this.workerId, this.backwardId);
+        Util.saveBackwardId(this.workerId, this.backwardId);
         return;
       }
     }
@@ -117,16 +90,8 @@ public class Snowflake implements Next {
     throw new IllegalStateException(
         "Clock is moving backwards, current time is "
             + currentMillis
-            + " milliseconds, workerId map = "
+            + " mills, workerId map = "
             + backwardIdLastTimes);
-  }
-
-  void sleep(long millis) {
-    try {
-      Thread.sleep(millis);
-    } catch (Exception e) {
-      // ignore
-    }
   }
 
   protected long tilNextMillis(long lastMillis) {
@@ -147,7 +112,9 @@ public class Snowflake implements Next {
   public static class Conf {
     /** 服务器第一次上线时间点, 设置后不允许修改 */
     long epoch;
-    /** 时间回拨序号占用比特位数 * */
+    /** 时间戳占用比特位数 */
+    int timestampBits;
+    /** 时间回拨序号占用比特位数 */
     int backwardBits;
     /** worker占用比特位数 */
     int workerBits;
@@ -167,15 +134,22 @@ public class Snowflake implements Next {
     int workerIdShift;
     int backwardShift;
     int timestampShift;
+    long maxTimestamp;
 
     public Conf() {
       // 1591173022000L is 2020-06-03 16:30:22
-      this(1591173022000L, 2, 8, 12, 1000);
+      this(1591173022000L, 41, 2, 8, 12, 1000);
     }
 
     public Conf(
-        long epoch, int backwardBits, int workerBits, int sequenceBits, long maxBackwardMillis) {
+        long epoch,
+        int timestampBits,
+        int backwardBits,
+        int workerBits,
+        int sequenceBits,
+        long maxBackwardMillis) {
       this.epoch = epoch;
+      this.timestampBits = timestampBits;
       this.backwardBits = backwardBits;
       this.workerBits = workerBits;
       this.sequenceBits = sequenceBits;
@@ -183,12 +157,23 @@ public class Snowflake implements Next {
       this.maxSequence = ~(-1L << sequenceBits);
       this.maxWorkerId = ~(-1L << workerBits);
       this.maxBackwardId = ~(-1L << backwardBits);
+      this.maxTimestamp = ~(-1L << timestampBits);
 
       this.maxBackwardMillis = maxBackwardMillis;
 
       this.workerIdShift = sequenceBits;
       this.backwardShift = workerBits + sequenceBits;
       this.timestampShift = backwardBits + this.backwardShift;
+    }
+
+    public Map<Long, Long> initBackwardIdLastTimesMap() {
+      val m = new HashMap<Long, Long>((int) this.maxBackwardId);
+
+      for (long i = 0; i <= this.maxBackwardId; i++) {
+        m.put(i, 0L);
+      }
+
+      return m;
     }
   }
 }

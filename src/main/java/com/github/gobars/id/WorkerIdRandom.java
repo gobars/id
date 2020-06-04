@@ -1,7 +1,8 @@
 package com.github.gobars.id;
 
-import java.security.SecureRandom;
 import lombok.extern.slf4j.Slf4j;
+
+import java.security.SecureRandom;
 
 /** 随机生成workerId. */
 @Slf4j

@@ -1,11 +1,12 @@
 package com.github.gobars.id;
 
+import lombok.experimental.UtilityClass;
+import lombok.val;
+
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.UnknownHostException;
 import java.util.Enumeration;
-import lombok.experimental.UtilityClass;
-import lombok.val;
 
 @UtilityClass
 public class Ip {

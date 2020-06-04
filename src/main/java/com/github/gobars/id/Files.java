@@ -1,8 +1,9 @@
 package com.github.gobars.id;
 
-import java.io.*;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
+
+import java.io.*;
 
 @UtilityClass
 @Slf4j

@@ -32,7 +32,7 @@ snowflake 改进:
 sign | timestamp |backwardId| workerId|sequence
 :---:  | :---:      | :---: | :---:     |:---:
 1bit | 41bit    |2 bit | 8 bit  |12 bit
-符号位 | 时间戳    |时间回拨序号 | 工作机器ID  |同一个毫秒内产生的不同序列
+符号位 | 时间戳    |时间回拨序号 | 工作机器ID  |同一个时间戳内产生的不同序列
 
 时间回拨问题解决方案
 

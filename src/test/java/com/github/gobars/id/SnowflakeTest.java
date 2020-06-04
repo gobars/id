@@ -1,25 +1,24 @@
 package com.github.gobars.id;
 
-import static com.github.gobars.id.Snowflake.workerBackwardIdFile;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import java.io.File;
-import java.security.SecureRandom;
 import lombok.val;
 import org.junit.Test;
 
-public class SnowflakeTest {
+import java.io.File;
+import java.security.SecureRandom;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+public class SnowflakeTest {
   @Test
   public void saveCurrentMillis() {
     long randWorkerId = new SecureRandom().nextLong();
-    assertEquals(0, Snowflake.readBackwardId(randWorkerId));
+    assertEquals(0, Util.readBackwardId(randWorkerId));
 
-    Snowflake.saveBackwardId(randWorkerId, 1);
-    assertEquals(1, Snowflake.readBackwardId(randWorkerId));
+    Util.saveBackwardId(randWorkerId, 1);
+    assertEquals(1, Util.readBackwardId(randWorkerId));
 
-    new File(workerBackwardIdFile(randWorkerId)).delete();
+    new File(Util.backwardIdFile(randWorkerId)).delete();
   }
 
   @Test
@@ -29,12 +28,12 @@ public class SnowflakeTest {
     sf.currentMillis = System.currentTimeMillis();
     long id1 = sf.next();
 
-    long backwardId = Snowflake.readBackwardId(0);
+    long backwardId = Util.readBackwardId(0);
     sf.currentMillis -= 10;
     long id2 = sf.next();
 
     assertTrue(id2 != id1);
-    assertTrue(backwardId != Snowflake.readBackwardId(0));
+    assertTrue(backwardId != Util.readBackwardId(0));
   }
 
   @Test

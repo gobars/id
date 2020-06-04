@@ -1,11 +1,11 @@
 package com.github.gobars.id;
 
-import static org.junit.Assert.assertEquals;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.contrib.java.lang.system.EnvironmentVariables;
+
+import static org.junit.Assert.assertEquals;
 
 public class WorkerIdEnvTest {
   @Rule public final EnvironmentVariables environmentVariables = new EnvironmentVariables();
