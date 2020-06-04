@@ -6,7 +6,7 @@ id generator with time backward-compatible.
 
 ```xml
  <dependency>
-    <groupId>cn.bjca</groupId>
+    <groupId>com.github.gobars</groupId>
     <artifactId>id</artifactId>
     <version>0.0.1</version>
  </dependency>
