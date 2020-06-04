@@ -36,6 +36,7 @@ public class Ip {
    * <p>https://stackoverflow.com/a/20418809
    *
    * @throws UnknownHostException If the LAN address of the machine cannot be found.
+   * @return InetAddress
    */
   public InetAddress getLocalHostLANAddress() throws UnknownHostException {
     try {
