@@ -1,4 +1,4 @@
-package cn.bjca.id;
+package com.github.gobars.id;
 
 import java.io.FileNotFoundException;
 import java.util.HashMap;

@@ -1,4 +1,4 @@
-package cn.bjca.id;
+package com.github.gobars.id;
 
 import lombok.experimental.UtilityClass;
 import lombok.val;

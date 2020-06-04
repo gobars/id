@@ -1,4 +1,4 @@
-package cn.bjca.id;
+package com.github.gobars.id;
 
 import java.security.SecureRandom;
 import lombok.extern.slf4j.Slf4j;

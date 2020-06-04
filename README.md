@@ -13,6 +13,8 @@ id generator with time backward-compatible.
 ```
 
 ```java
+import com.github.gobars.Id;
+
 long bizID = Id.next();
 ```
 

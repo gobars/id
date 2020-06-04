@@ -1,4 +1,4 @@
-package cn.bjca.id;
+package com.github.gobars.id;
 
 import java.io.BufferedReader;
 import java.io.InputStream;

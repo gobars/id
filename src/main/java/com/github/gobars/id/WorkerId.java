@@ -1,4 +1,4 @@
-package cn.bjca.id;
+package com.github.gobars.id;
 
 /** WorkerId 自定义接口 */
 public interface WorkerId {

@@ -1,4 +1,4 @@
-package cn.bjca.id;
+package com.github.gobars.id;
 
 import static com.google.common.truth.Truth.assertThat;
 

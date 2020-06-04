@@ -1,4 +1,4 @@
-package cn.bjca.id;
+package com.github.gobars.id;
 
 /** 活动从环境变量中指定的WorkerID */
 public class WorkerIdEnv implements WorkerId {

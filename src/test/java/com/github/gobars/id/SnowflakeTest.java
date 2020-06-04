@@ -1,6 +1,6 @@
-package cn.bjca.id;
+package com.github.gobars.id;
 
-import static cn.bjca.id.Snowflake.workerBackwardIdFile;
+import static com.github.gobars.id.Snowflake.workerBackwardIdFile;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 

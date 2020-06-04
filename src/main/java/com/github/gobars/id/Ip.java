@@ -1,4 +1,4 @@
-package cn.bjca.id;
+package com.github.gobars.id;
 
 import java.net.InetAddress;
 import java.net.NetworkInterface;
