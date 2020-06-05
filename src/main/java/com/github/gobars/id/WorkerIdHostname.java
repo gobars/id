@@ -16,7 +16,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class WorkerIdHostname implements WorkerId {
-  public static final String HOSTNAME = hostname();
+  public static final String HOSTNAME = getHostname();
   private static final Pattern HOSTNAME_WORKER_ID_PATTERN = Pattern.compile("\\d+$");
   private static final int WORKER_ID = parseWorkerId(HOSTNAME);
 
@@ -29,7 +29,7 @@ public class WorkerIdHostname implements WorkerId {
     return 0;
   }
 
-  public static String hostname() {
+  public static String getHostname() {
     // IS_OS_WINDOWS ? System.getenv("COMPUTERNAME") : System.getenv("HOSTNAME")
     // https://github.com/apache/commons-lang/blob/master/src/main/java/org/apache/commons/lang3/SystemUtils.java
     String host = System.getenv("COMPUTERNAME");
