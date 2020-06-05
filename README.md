@@ -29,11 +29,11 @@ long bizID = Id.next();
 
 snowflake 改进:
 
-API|sign | timestamp |backwardId| workerId|sequence| limit |remark
-:---:  |:---:  | :---:      | :---: | :---:     |:---:|:---:|---
--|符号位 | 时间戳    |时间回拨序号 | 工作机器ID  |同一个时间戳内产生的不同序列|限制| 备注
-Id|1 bit | 41bit（ms)    |2 bit | 8 bit  |12 bit |每毫秒单节点最大4096个ID| 标准snowflake中10位workerId抽出2位作为时间回拨序号， 2^41/1000/60/60/24/365.5≈69年
-Id12/1 bit | 27 bit (10s) | 2bit | 3 bit | 7 bit |每10秒单节点最大128个ID| 产生最大2^39=549,755,813,888（共12位数字）序列，2^27/6/60/24/365.5 ≈42年
+API|sign | timestamp |backwardId| workerId|sequence| limit |max|years|remark
+:---:  |:---:  | :---:      | :---: | :---:     |:---:|:---:|:---:|:---:|---
+-|符号位 | 时间戳    |时间回拨序号 | 工作机器ID  |同一个时间戳内产生的不同序列|最大值|使用年限|限制| 备注
+Id|1 bit | 41 bit（ms)    | 2 bit | 8 bit  |12 bit |每毫秒单节点最大4096个ID|2^63|2^41/1000/60/60/24/365.5≈69年| 标准snowflake中10位workerId抽出2位作为时间回拨序号
+Id12|1 bit | 29 bit (s) | 1 bit | 3 bit | 6 bit |每1秒单节点最大64个ID|2^39=549,755,813,888|2^29/60/60/24/365.5 ≈17年|
     
 时间回拨问题解决方案
 

@@ -1,13 +1,9 @@
 package com.github.gobars.id;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.Value;
-import lombok.extern.slf4j.Slf4j;
-import lombok.val;
-
 import java.util.HashMap;
 import java.util.Map;
+import lombok.*;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 雪花算法实现
@@ -110,6 +106,25 @@ public class Snowflake implements Next {
 
   /** 雪花算法的配置 */
   @Value
+  @Builder
+  public static class BaseConf {
+    /** 服务器第一次上线时间点, 设置后不允许修改 */
+    long epoch;
+    /** 时间戳占用比特位数 */
+    int timestampBits;
+    /** 规整到的时间单位 */
+    int roundMillis;
+    /** 时间回拨序号占用比特位数 */
+    int backwardBits;
+    /** worker占用比特位数 */
+    int workerBits;
+    /** 自增序号占用比特位数 */
+    int sequenceBits;
+    /** 最大时间回拨 */
+    long maxBackwardMillis;
+  }
+
+  @Value
   public static class Conf {
     /** 服务器第一次上线时间点, 设置后不允许修改 */
     long epoch;
@@ -123,6 +138,8 @@ public class Snowflake implements Next {
     int workerBits;
     /** 自增序号占用比特位数 */
     int sequenceBits;
+    /** 最大时间回拨 */
+    long maxBackwardMillis;
 
     /** 最大自增序号 */
     long maxSequence;
@@ -131,40 +148,24 @@ public class Snowflake implements Next {
     /** 最大时间回拨ID */
     long maxBackwardId;
 
-    /** 最大时间回拨 */
-    long maxBackwardMillis;
-
     int workerIdShift;
     int backwardShift;
     int timestampShift;
     long maxTimestamp;
 
-    public Conf() {
-      // 1591173022000L is 2020-06-03 16:30:22
-      this(1591173022000L, 41, 1, 2, 8, 12, 1000);
-    }
-
-    public Conf(
-        long epoch,
-        int timestampBits,
-        int roundMillis,
-        int backwardBits,
-        int workerBits,
-        int sequenceBits,
-        long maxBackwardMillis) {
-      this.epoch = epoch;
-      this.timestampBits = timestampBits;
-      this.roundMillis = roundMillis;
-      this.backwardBits = backwardBits;
-      this.workerBits = workerBits;
-      this.sequenceBits = sequenceBits;
+    public Conf(BaseConf baseConf) {
+      this.epoch = baseConf.epoch;
+      this.timestampBits = baseConf.timestampBits;
+      this.roundMillis = baseConf.roundMillis;
+      this.backwardBits = baseConf.backwardBits;
+      this.workerBits = baseConf.workerBits;
+      this.sequenceBits = baseConf.sequenceBits;
+      this.maxBackwardMillis = baseConf.maxBackwardMillis;
 
       this.maxSequence = ~(-1L << sequenceBits);
       this.maxWorkerId = ~(-1L << workerBits);
       this.maxBackwardId = ~(-1L << backwardBits);
       this.maxTimestamp = ~(-1L << timestampBits);
-
-      this.maxBackwardMillis = maxBackwardMillis;
 
       this.workerIdShift = sequenceBits;
       this.backwardShift = workerBits + sequenceBits;

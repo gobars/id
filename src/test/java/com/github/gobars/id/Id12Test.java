@@ -1,12 +1,12 @@
 package com.github.gobars.id;
 
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Assert;
 import org.junit.Test;
 
-import static org.junit.Assert.assertTrue;
-
 public class Id12Test {
-  public static final int SIZE = 130;
+  public static final int SIZE = 65;
 
   @Test
   public void next() {

@@ -16,11 +16,19 @@ public class Id {
     val c =
         new WorkerIdComposite(
             new WorkerIdEnv(), new WorkerIdHostname(), new WorkerIdIp(), new WorkerIdRandom());
-    configure(new Snowflake(new Snowflake.Conf(), c.workerId()));
-  }
-
-  public void configure(Next next) {
-    Id.next = next;
+    val conf =
+        new Snowflake.Conf(
+            Snowflake.BaseConf.builder()
+                // 1591173022000L is 2020-06-03 16:30:22
+                .epoch(1591173022000L)
+                .timestampBits(41)
+                .backwardBits(2)
+                .workerBits(8)
+                .sequenceBits(12)
+                .roundMillis(1)
+                .maxBackwardMillis(1000)
+                .build());
+    Id.next = new Snowflake(conf, c.workerId());
   }
 
   /**

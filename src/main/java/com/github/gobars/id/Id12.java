@@ -9,7 +9,17 @@ public class Id12 {
 
   static {
     // 1591173022000L is 2020-06-03 16:30:22
-    val conf = new Snowflake.Conf(1591173022000L, 27, 10000, 2, 3, 7, 1000);
+    val conf =
+        new Snowflake.Conf(
+            Snowflake.BaseConf.builder()
+                .epoch(1591173022000L)
+                .timestampBits(29)
+                .backwardBits(1)
+                .workerBits(3)
+                .sequenceBits(6)
+                .roundMillis(1000)
+                .maxBackwardMillis(1000)
+                .build());
     val c =
         new WorkerIdComposite(
             new WorkerIdEnv(), new WorkerIdHostname(), new WorkerIdIp(), new WorkerIdRandom());
