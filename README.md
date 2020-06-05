@@ -10,14 +10,6 @@ id generator with time backward-compatible.
 
 ## usage
 
-```xml
- <dependency>
-    <groupId>com.github.gobars</groupId>
-    <artifactId>id</artifactId>
-    <version>0.0.5-SNAPSHOT</version>
- </dependency>
-```
-
 ```java
 import com.github.gobars.Id;
 
