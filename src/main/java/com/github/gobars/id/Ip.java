@@ -1,12 +1,11 @@
 package com.github.gobars.id;
 
-import lombok.experimental.UtilityClass;
-import lombok.val;
-
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.UnknownHostException;
 import java.util.Enumeration;
+import lombok.experimental.UtilityClass;
+import lombok.val;
 
 @UtilityClass
 public class Ip {
@@ -40,8 +39,9 @@ public class Ip {
    * @return InetAddress
    */
   public InetAddress getLocalHostLANAddress() throws UnknownHostException {
+    InetAddress candidateAddress = null;
+
     try {
-      InetAddress candidateAddress = null;
       // Iterate all NICs (network interface cards)...
       for (Enumeration<NetworkInterface> ifaces = NetworkInterface.getNetworkInterfaces();
           ifaces.hasMoreElements(); ) {
@@ -53,15 +53,15 @@ public class Ip {
             continue;
           }
 
+          // Found non-loopback site-local address. Return it immediately...
           if (inetAddr.isSiteLocalAddress()) {
-            // Found non-loopback site-local address. Return it immediately...
             return inetAddr;
           }
 
+          // Found non-loopback address, but not necessarily site-local.
+          // Store it as a candidate to be returned if site-local address is not subsequently
+          // found...
           if (candidateAddress == null) {
-            // Found non-loopback address, but not necessarily site-local.
-            // Store it as a candidate to be returned if site-local address is not subsequently
-            // found...
             candidateAddress = inetAddr;
             // Note that we don't repeatedly assign non-loopback non-site-local addresses as
             // candidates,
@@ -69,6 +69,7 @@ public class Ip {
           }
         }
       }
+
       if (candidateAddress != null) {
         // We did not find a site-local address, but we found some other non-loopback address.
         // Server might have a non-site-local address assigned to its NIC (or it might be running
