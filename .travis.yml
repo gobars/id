@@ -5,8 +5,8 @@ services:
 before_install:
   - docker pull mysql:5.7
   - docker run -p 3306:3306 --name mysql -e MYSQL_ROOT_PASSWORD=root -d mysql:5.7
-  - docker pull deepdiver/docker-oracle-xe-11g
-  - docker run --name oracle -d -p 127.0.0.1:1521:1521 -e ORACLE_ALLOW_REMOTE=true deepdiver/docker-oracle-xe-11g
+  - docker pull epiclabs/docker-oracle-xe-11g
+  - docker run --name oracle -d -p 127.0.0.1:1521:1521 -e ORACLE_ALLOW_REMOTE=true epiclabs/docker-oracle-xe-11g
   # - docker inspect oracle
   # - docker ps -a
   - echo "Wait to allow Oracle to be initialized"
