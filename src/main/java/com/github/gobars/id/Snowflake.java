@@ -14,10 +14,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class Snowflake {
   private final Conf conf;
-  private final long workerId;
   /** 保留backwardId和lastTime */
   private final Map<Long, Long> backwardIdLastTimes;
 
+  protected long workerId;
   @Getter protected long lastTs;
   @Getter @Setter protected long sequence;
   private long backwardId;
@@ -71,7 +71,7 @@ public class Snowflake {
     if (lastTs == cur) {
       sequence = ++sequence & conf.getMaxSequence();
       if (sequence == 0L) {
-        cur = tilNext(lastTs);
+        cur = lastTs + 1;
       }
     } else {
       sequence = 0L;
@@ -107,7 +107,7 @@ public class Snowflake {
     return cur;
   }
 
-  private void rotateBackwardId(long cur) {
+  protected void rotateBackwardId(long cur) {
     for (val e : backwardIdLastTimes.entrySet()) {
       if (e.getValue() <= cur && e.getKey() != this.backwardId) {
         this.backwardId = e.getKey();
@@ -122,16 +122,6 @@ public class Snowflake {
             + cur * conf.getRoundMillis()
             + " mills, workerId map = "
             + backwardIdLastTimes);
-  }
-
-  protected long tilNext(long last) {
-    long cur = currentTimeMillis() / conf.getRoundMillis();
-    while (cur <= last) {
-      Util.sleep(conf.getRoundMillis());
-      cur = currentTimeMillis() / conf.getRoundMillis();
-    }
-
-    return cur;
   }
 
   protected long currentTimeMillis() {

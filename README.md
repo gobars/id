@@ -58,9 +58,10 @@ drop table if exists worker_id;
 create table worker_id
 (
     id       bigint auto_increment primary key comment 'worker id',
-    created  datetime    not null default current_timestamp comment '创建时间',
-    hostname varchar(60) not null comment '当前机器名称',
-    biz      varchar(60) null comment '当前业务名称'
+    created  datetime default current_timestamp comment '创建时间',
+    hostname varchar(60) comment '当前机器名称',
+    reason   varchar(60) comment '申请原因 start:启动 backwards:时间回拨',
+    biz      varchar(60) comment '当前业务名称'
 ) engine = innodb
   default charset = utf8mb4 comment 'worker id 分配表';
 ```

@@ -6,6 +6,12 @@ import lombok.Cleanup;
 import lombok.Value;
 import lombok.val;
 
+/**
+ * SQL执行器.
+ *
+ * <p>from
+ * https://github.com/mybatis/mybatis-3/blob/master/src/main/java/org/apache/ibatis/jdbc/SqlRunner.java
+ */
 @Value
 public class SqlRunner {
   Connection cnn;
@@ -24,6 +30,10 @@ public class SqlRunner {
     setParameters(ps, args);
     ps.executeUpdate();
 
+    return parseGeneratedKey(ps);
+  }
+
+  private int parseGeneratedKey(PreparedStatement ps) throws SQLException {
     val keys = getResults(ps.getGeneratedKeys());
     if (keys.isEmpty()) {
       return -1;
@@ -57,18 +67,20 @@ public class SqlRunner {
   private List<Map<String, String>> getResults(ResultSet resultSet) throws SQLException {
     @Cleanup val rs = resultSet;
 
-    List<String> columns = new ArrayList<String>();
-    val rsmd = rs.getMetaData();
-    for (int i = 0, n = rsmd.getColumnCount(); i < n; i++) {
-      columns.add(rsmd.getColumnLabel(i + 1));
+    List<String> cols = new ArrayList<String>();
+    val md = rs.getMetaData();
+    for (int i = 0, n = md.getColumnCount(); i < n; i++) {
+      cols.add(md.getColumnLabel(i + 1));
     }
 
     List<Map<String, String>> list = new ArrayList<Map<String, String>>();
 
     while (rs.next()) {
       Map<String, String> row = new HashMap<String, String>();
-      for (int i = 0, n = columns.size(); i < n; i++) {
-        row.put(columns.get(i).toLowerCase(Locale.ENGLISH), rs.getString(i + 1));
+      for (int i = 0, n = cols.size(); i < n; i++) {
+        String name = cols.get(i).toLowerCase(Locale.ENGLISH);
+        String value = rs.getString(i + 1);
+        row.put(name, value);
       }
       list.add(row);
     }
