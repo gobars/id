@@ -10,7 +10,7 @@ import lombok.val;
  */
 @UtilityClass
 public class Id {
-  private Next next;
+  private final Next next;
 
   static {
     val c =
@@ -28,7 +28,7 @@ public class Id {
                 .roundMillis(1)
                 .maxBackwardMillis(1000)
                 .build());
-    Id.next = new Snowflake(conf, c.workerId());
+    next = new Snowflake(conf, c.workerId());
   }
 
   /**

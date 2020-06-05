@@ -5,7 +5,7 @@ import lombok.val;
 
 @UtilityClass
 public class Id12 {
-  private Next next;
+  private final Next next;
 
   static {
     // 1591173022000L is 2020-06-03 16:30:22
