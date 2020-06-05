@@ -1,5 +1,19 @@
 dist: xenial
 
+services:
+  - docker
+before_install:
+  - docker pull mysql:5.7
+  - docker run -p 3306:3306 --name mysql -e MYSQL_ROOT_PASSWORD=root -d mysql:5.7
+  - docker pull deepdiver/docker-oracle-xe-11g
+  - docker run --name oracle -d -p 127.0.0.1:1521:1521 -e ORACLE_ALLOW_REMOTE=true deepdiver/docker-oracle-xe-11g
+  # - docker inspect oracle
+  # - docker ps -a
+  - echo "Wait to allow Oracle to be initialized"
+  - travis_wait sleep 10
+  - docker top oracle
+  - docker exec -it mysql mysql -u root -p'root' -s -e "create database id;ccreate table id.worker_id(id bigint auto_increment primary key comment 'worker id',created datetime not null default current_timestamp comment '创建时间',hostname varchar(60) not null comment '当前机器名称',biz varchar(60) null comment '当前业务名称')engine=innodb default charset=utf8mb4 comment 'worker id 分配表';"
+
 language: java
 install: mvn install -DskipTests -Dgpg.skip
 jdk: openjdk8

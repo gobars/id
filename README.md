@@ -48,3 +48,19 @@ Id12.next()|1 bit  | 29 bit (s) | 1 bit    | 3 bit      | 6 bit          | 2^39=
 1. [美团技术分享：深度解密美团的分布式ID生成算法](https://zhuanlan.zhihu.com/p/83753710)
 1. [时钟回拨问题咋解决？百度开源的唯一ID生成器UidGenerator](https://zhuanlan.zhihu.com/p/77737855)
 1. [分布式ID增强篇--优化时钟回拨问题](https://www.jianshu.com/p/98c202f64652)
+
+## 脚本
+
+### MySQL
+
+```sql
+drop table if exists worker_id;
+create table worker_id
+(
+    id       bigint auto_increment primary key comment 'worker id',
+    created  datetime    not null default current_timestamp comment '创建时间',
+    hostname varchar(60) not null comment '当前机器名称',
+    biz      varchar(60) null comment '当前业务名称'
+) engine = innodb
+  default charset = utf8mb4 comment 'worker id 分配表';
+```
