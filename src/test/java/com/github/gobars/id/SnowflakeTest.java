@@ -1,7 +1,7 @@
 package com.github.gobars.id;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNotEquals;
 
 import java.io.File;
 import java.security.SecureRandom;
@@ -32,8 +32,8 @@ public class SnowflakeTest {
     sf.currentMillis -= 10;
     long id2 = sf.next();
 
-    assertTrue(id2 != id1);
-    assertTrue(backwardId != Util.readBackwardId(0));
+    assertNotEquals(id1, id2);
+    assertNotEquals(backwardId, Util.readBackwardId(0));
   }
 
   @Test

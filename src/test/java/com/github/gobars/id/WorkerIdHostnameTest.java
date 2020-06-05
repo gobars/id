@@ -15,9 +15,9 @@ public class WorkerIdHostnameTest {
     Truth.assertThat(WorkerIdHostname.parseWorkerId("ab-01")).isEqualTo(1);
 
     environmentVariables.set("HOSTNAME", "BINGOOHOST1");
-    Truth.assertThat(WorkerIdHostname.hostname()).isEqualTo("BINGOOHOST1");
+    Truth.assertThat(WorkerIdHostname.getHostname()).isEqualTo("BINGOOHOST1");
 
     environmentVariables.set("COMPUTERNAME", "BINGOOHOST2");
-    Truth.assertThat(WorkerIdHostname.hostname()).isEqualTo("BINGOOHOST2");
+    Truth.assertThat(WorkerIdHostname.getHostname()).isEqualTo("BINGOOHOST2");
   }
 }
