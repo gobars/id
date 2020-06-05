@@ -22,18 +22,7 @@ public class SnowflakeTest {
 
   @Test
   public void backward() {
-    val conf =
-        new Snowflake.Conf(
-            Snowflake.BaseConf.builder()
-                // 1591173022000L is 2020-06-03 16:30:22
-                .epoch(1591173022000L)
-                .timestampBits(41)
-                .backwardBits(2)
-                .workerBits(8)
-                .sequenceBits(12)
-                .roundMillis(1)
-                .maxBackwardMillis(1000)
-                .build());
+    val conf = new Snowflake.Conf(Snowflake.fromSpec(Id.SPEC));
     val sf = new TimebackSnowflake(conf, 0);
 
     sf.currentMillis = System.currentTimeMillis();
@@ -49,18 +38,8 @@ public class SnowflakeTest {
 
   @Test
   public void conf() {
-    val conf =
-        new Snowflake.Conf(
-            Snowflake.BaseConf.builder()
-                // 1591173022000L is 2020-06-03 16:30:22
-                .epoch(1591173022000L)
-                .timestampBits(41)
-                .backwardBits(2)
-                .workerBits(8)
-                .sequenceBits(12)
-                .roundMillis(1)
-                .maxBackwardMillis(1000)
-                .build());
+    val conf = new Snowflake.Conf(Snowflake.fromSpec(Id.SPEC));
+
     assertEquals(8, conf.getWorkerBits());
     assertEquals(255, conf.getMaxWorkerId());
     assertEquals(4095, conf.getMaxSequence());

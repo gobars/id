@@ -1,7 +1,6 @@
 package com.github.gobars.id;
 
 import lombok.experimental.UtilityClass;
-import lombok.val;
 
 /**
  * ID生成器入口类。
@@ -10,26 +9,15 @@ import lombok.val;
  */
 @UtilityClass
 public class Id {
-  private final Next next;
+  public final String SPEC =
+      "epoch=2020-06-03 16:30:22,timestampBits=41,backwardBits=2,workerBits=8,sequenceBits=12,roundMillis=1,maxBackwardMillis=1000";
 
-  static {
-    val c =
-        new WorkerIdComposite(
-            new WorkerIdEnv(), new WorkerIdHostname(), new WorkerIdIp(), new WorkerIdRandom());
-    val conf =
-        new Snowflake.Conf(
-            Snowflake.BaseConf.builder()
-                // 1591173022000L is 2020-06-03 16:30:22
-                .epoch(1591173022000L)
-                .timestampBits(41)
-                .backwardBits(2)
-                .workerBits(8)
-                .sequenceBits(12)
-                .roundMillis(1)
-                .maxBackwardMillis(1000)
-                .build());
-    next = new Snowflake(conf, c.workerId());
-  }
+  private final Snowflake next =
+      new Snowflake(
+          new Snowflake.Conf(Snowflake.fromSpec(SPEC)),
+          new WorkerIdComposite(
+                  new WorkerIdEnv(), new WorkerIdHostname(), new WorkerIdIp(), new WorkerIdRandom())
+              .workerId());
 
   /**
    * 获得下一个ID.

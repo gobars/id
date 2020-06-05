@@ -14,7 +14,7 @@ id generator with time backward-compatible.
  <dependency>
     <groupId>com.github.gobars</groupId>
     <artifactId>id</artifactId>
-    <version>0.0.2</version>
+    <version>0.0.5-SNAPSHOT</version>
  </dependency>
 ```
 
@@ -35,11 +35,11 @@ long bizID = Id.next();
 
 snowflake 改进:
 
-API    |sign   | timestamp  |backwardId | workerId  | sequence       |max                 | limit    |years                        |remark
-:---:  |:---:  | :---:      | :---:     | :---:     |  :---:         |:---:               |:---:     |:---:                        |:---
-\-     |符号位  | 时间戳      |时间回拨序号 | 工作机器ID  |同时间戳内产生的序列|最大值               |限制       |使用年限                      | 备注
-Id     |1 bit  | 41 bit（ms)| 2 bit     | 8 bit     | 12 bit          |2^63                |4096/ms   |2^41/1000/60/60/24/365.5≈69年| 标准snowflake中10位workerId抽出2位作为时间回拨序号
-Id12   |1 bit  | 29 bit (s) | 1 bit    | 3 bit      | 6 bit          | 2^39=549,755,813,888|64/s      |2^29/60/60/24/365.5 ≈17年    | 产生最大12位长度数字的ID
+API      |sign   | timestamp  |backwardId | workerId  | sequence       |max                 | limit    |years                        |remark
+:---:    |:---:  | :---:      | :---:     | :---:     |  :---:         |:---:               |:---:     |:---:                        |:---
+\-       |符号位  | 时间戳      |时间回拨序号 | 工作机器ID  |同时间戳内产生的序列|最大值               |限制       |使用年限                      | 备注
+Id.next()|1 bit  | 41 bit（ms)| 2 bit     | 8 bit     | 12 bit          |2^63                |4096/ms   |2^41/1000/60/60/24/365.5≈69年| 标准snowflake中10位workerId抽出2位作为时间回拨序号
+Id12.next()|1 bit  | 29 bit (s) | 1 bit    | 3 bit      | 6 bit          | 2^39=549,755,813,888|64/s      |2^29/60/60/24/365.5 ≈17年    | 产生最大12位长度数字的ID
     
 时间回拨问题解决方案
 

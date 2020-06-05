@@ -1,5 +1,6 @@
 package com.github.gobars.id;
 
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.*;
@@ -11,7 +12,7 @@ import lombok.extern.slf4j.Slf4j;
  * <p>添加时间回拨处理
  */
 @Slf4j
-public class Snowflake implements Next {
+public class Snowflake {
   private final Conf conf;
   private final long workerId;
   /** 保留backwardId和lastTime */
@@ -30,7 +31,40 @@ public class Snowflake implements Next {
     log.debug("Snowflake created from conf {} with workerId {}", conf, workerId);
   }
 
-  @Override
+  @SneakyThrows
+  public static BaseConf fromSpec(String spec) {
+    val builder = BaseConf.builder();
+
+    String[] items = spec.split(",");
+    for (String item : items) {
+      item = item.trim();
+      if (item.length() == 0) {
+        continue;
+      }
+
+      String[] parts = item.split("=", 2);
+      String key = parts[0];
+      String val = parts[1];
+      if (key.equals("epoch")) {
+        builder.epoch(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(val).getTime());
+      } else if (key.equals("timestampBits")) {
+        builder.timestampBits(Integer.parseInt(val));
+      } else if (key.equals("roundMillis")) {
+        builder.roundMillis(Integer.parseInt(val));
+      } else if (key.equals("backwardBits")) {
+        builder.backwardBits(Integer.parseInt(val));
+      } else if (key.equals("workerBits")) {
+        builder.workerBits(Integer.parseInt(val));
+      } else if (key.equals("sequenceBits")) {
+        builder.sequenceBits(Integer.parseInt(val));
+      } else if (key.equals("maxBackwardMillis")) {
+        builder.maxBackwardMillis(Integer.parseInt(val));
+      }
+    }
+
+    return builder.build();
+  }
+
   public synchronized long next() {
     long cur = timeBackDeal();
 
@@ -108,19 +142,19 @@ public class Snowflake implements Next {
   @Value
   @Builder
   public static class BaseConf {
-    /** 服务器第一次上线时间点, 设置后不允许修改 */
+    /** 1 服务器第一次上线时间点, 设置后不允许修改 */
     long epoch;
-    /** 时间戳占用比特位数 */
+    /** 2 时间戳占用比特位数 */
     int timestampBits;
-    /** 规整到的时间单位 */
+    /** 3 规整到的时间单位 */
     int roundMillis;
-    /** 时间回拨序号占用比特位数 */
+    /** 4 时间回拨序号占用比特位数 */
     int backwardBits;
-    /** worker占用比特位数 */
+    /** 5 worker占用比特位数 */
     int workerBits;
-    /** 自增序号占用比特位数 */
+    /** 6 自增序号占用比特位数 */
     int sequenceBits;
-    /** 最大时间回拨 */
+    /** 7 最大时间回拨 */
     long maxBackwardMillis;
   }
 

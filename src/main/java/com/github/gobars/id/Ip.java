@@ -59,13 +59,9 @@ public class Ip {
           }
 
           // Found non-loopback address, but not necessarily site-local.
-          // Store it as a candidate to be returned if site-local address is not subsequently
-          // found...
+          // Store it as a candidate if site-local address is not subsequently found...
           if (candidateAddress == null) {
             candidateAddress = inetAddr;
-            // Note that we don't repeatedly assign non-loopback non-site-local addresses as
-            // candidates,
-            // only the first. For subsequent iterations, candidate will be non-null.
           }
         }
       }
@@ -82,15 +78,14 @@ public class Ip {
       // Fall back to returning whatever InetAddress.getLocalHost() returns...
       val jdkSuppliedAddress = InetAddress.getLocalHost();
       if (jdkSuppliedAddress == null) {
-        throw new UnknownHostException(
-            "The JDK InetAddress.getLocalHost() method unexpectedly returned null.");
+        throw new UnknownHostException("InetAddress.getLocalHost() unexpectedly returned null.");
       }
 
       return jdkSuppliedAddress;
     } catch (Exception e) {
-      val unknownHostException = new UnknownHostException("Failed to determine LAN address: " + e);
-      unknownHostException.initCause(e);
-      throw unknownHostException;
+      val ex = new UnknownHostException("Failed to determine LAN address: " + e);
+      ex.initCause(e);
+      throw ex;
     }
   }
 }
