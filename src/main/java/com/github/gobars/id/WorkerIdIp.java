@@ -12,18 +12,18 @@ import lombok.val;
  */
 @Slf4j
 public class WorkerIdIp implements WorkerId {
-  private static final int WORKER_ID = generate();
+  public static String localIP;
+  private static int workerId;
 
-  private static int generate() {
+  static {
     try {
       val addr = Ip.getLocalHostLANAddress();
+      localIP = addr.getHostAddress();
       byte[] bytes = addr.getAddress();
-      return bytes[bytes.length - 1] & 0xff;
+      workerId = bytes[bytes.length - 1] & 0xff;
     } catch (Exception ex) {
       log.warn("failed to determine LAN address", ex);
     }
-
-    return 0;
   }
 
   /**
@@ -33,6 +33,6 @@ public class WorkerIdIp implements WorkerId {
    */
   @Override
   public int workerId() {
-    return WORKER_ID;
+    return workerId;
   }
 }

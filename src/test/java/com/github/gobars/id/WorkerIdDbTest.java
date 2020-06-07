@@ -2,9 +2,6 @@ package com.github.gobars.id;
 
 import static org.junit.Assert.assertTrue;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
 import lombok.SneakyThrows;
 import lombok.val;
 import org.junit.Test;
@@ -16,18 +13,9 @@ public class WorkerIdDbTest {
     Class.forName("com.mysql.jdbc.Driver");
 
     val url = "jdbc:mysql://localhost:3306/id?useSSL=false";
-    int id =
-        new WorkerIdDb()
-            .dataSource(
-                new WorkerIdDb.DataSource() {
-                  @Override
-                  public Connection getConnection() throws SQLException {
-                    return DriverManager.getConnection(url, "root", "root");
-                  }
-                })
-            .biz("default")
-            .reason("test")
-            .workerId();
+    val ds = new ConnGetter.JdbcConnGetter(url, "root", "root");
+
+    int id = new WorkerIdDb().connGetter(ds).biz("default").reason("test").workerId();
     assertTrue(id > 0);
   }
 }

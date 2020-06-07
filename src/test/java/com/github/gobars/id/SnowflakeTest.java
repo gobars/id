@@ -5,9 +5,6 @@ import static org.junit.Assert.assertNotEquals;
 
 import java.io.File;
 import java.security.SecureRandom;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
 import lombok.val;
 import org.junit.Test;
 
@@ -25,7 +22,7 @@ public class SnowflakeTest {
 
   @Test
   public void backward() {
-    val conf = new Snowflake.Conf(Snowflake.fromSpec(Id.SPEC));
+    val conf = Snowflake.Conf.fromSpec(Id.SPEC);
     val sf = new TimebackSnowflake(conf, 0);
 
     sf.currentMillis = System.currentTimeMillis();
@@ -41,17 +38,11 @@ public class SnowflakeTest {
 
   @Test
   public void backwardDb() {
-    val conf = new Snowflake.Conf(Snowflake.fromSpec(Id.SPEC));
+    val conf = Snowflake.Conf.fromSpec(Id.SPEC);
 
     val url = "jdbc:mysql://localhost:3306/id?useSSL=false";
-    val ds =
-        new WorkerIdDb.DataSource() {
-          @Override
-          public Connection getConnection() throws SQLException {
-            return DriverManager.getConnection(url, "root", "root");
-          }
-        };
-    val workIdDb = new WorkerIdDb().dataSource(ds).biz("default");
+    val ds = new ConnGetter.JdbcConnGetter(url, "root", "root");
+    val workIdDb = new WorkerIdDb().connGetter(ds).biz("default");
 
     val sf = new TimebackSnowflakeDb(conf, workIdDb);
 
@@ -66,7 +57,7 @@ public class SnowflakeTest {
 
   @Test
   public void conf() {
-    val conf = new Snowflake.Conf(Snowflake.fromSpec(Id.SPEC));
+    val conf = Snowflake.Conf.fromSpec(Id.SPEC);
 
     assertEquals(8, conf.getWorkerBits());
     assertEquals(255, conf.getMaxWorkerId());

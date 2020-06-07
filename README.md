@@ -59,9 +59,17 @@ create table worker_id
 (
     id       bigint auto_increment primary key comment 'worker id',
     created  datetime default current_timestamp comment '创建时间',
+    ip       varchar(60) comment '当前机器IP',
     hostname varchar(60) comment '当前机器名称',
+    pid      int comment '应用程序PID',
     reason   varchar(60) comment '申请原因 start:启动 backwards:时间回拨',
     biz      varchar(60) comment '当前业务名称'
 ) engine = innodb
   default charset = utf8mb4 comment 'worker id 分配表';
+```
+
+online:
+
+```sql
+create table worker_id(id bigint auto_increment primary key, created datetime default current_timestamp,ip varchar(60),hostname varchar(60),pid int,reason varchar(60),biz varchar(60))engine = innodb default charset = utf8mb4;
 ```

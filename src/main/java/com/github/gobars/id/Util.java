@@ -1,9 +1,12 @@
 package com.github.gobars.id;
 
+import java.io.FileNotFoundException;
+import java.util.Scanner;
+import lombok.Cleanup;
+import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
-
-import java.io.FileNotFoundException;
+import lombok.val;
 
 @Slf4j
 @UtilityClass
@@ -35,5 +38,13 @@ public class Util {
 
   public String backwardIdFile(long workerId) {
     return Files.homeFile(".worker.backwardId." + workerId);
+  }
+
+  @SneakyThrows
+  public String exec(String execCommand) {
+    val proc = Runtime.getRuntime().exec(execCommand);
+    @Cleanup val stream = proc.getInputStream();
+    @Cleanup val scanner = new Scanner(stream).useDelimiter("\\A");
+    return scanner.hasNext() ? scanner.next() : "";
   }
 }

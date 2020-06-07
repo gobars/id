@@ -1,8 +1,5 @@
 package com.github.gobars.id;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
 import javax.sql.DataSource;
 import lombok.experimental.UtilityClass;
 import lombok.val;
@@ -21,29 +18,16 @@ public class DbId {
   }
 
   public void configure(final DataSource ds) {
-    val wds =
-        new WorkerIdDb.DataSource() {
-          @Override
-          public Connection getConnection() throws SQLException {
-            return ds.getConnection();
-          }
-        };
-    configure(new WorkerIdDb().dataSource(wds).biz("default"));
+    configure(new WorkerIdDb().connGetter(new ConnGetter.DsConnGetter(ds)).biz("default"));
   }
 
   public void configure(final String url, final String user, final String password) {
-    val ds =
-        new WorkerIdDb.DataSource() {
-          @Override
-          public Connection getConnection() throws SQLException {
-            return DriverManager.getConnection(url, user, password);
-          }
-        };
-    configure(new WorkerIdDb().dataSource(ds).biz("default"));
+    val ds = new ConnGetter.JdbcConnGetter(url, user, password);
+    configure(new WorkerIdDb().connGetter(ds).biz("default"));
   }
 
   public void configure(WorkerIdDb workerIdDb) {
-    next = new SnowflakeDb(new Snowflake.Conf(Snowflake.fromSpec(Id.SPEC)), workerIdDb);
+    next = new SnowflakeDb(Snowflake.Conf.fromSpec(Id.SPEC), workerIdDb);
   }
 
   /**

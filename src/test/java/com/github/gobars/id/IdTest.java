@@ -1,12 +1,17 @@
 package com.github.gobars.id;
 
-import org.junit.Test;
-
 import static org.junit.Assert.assertTrue;
+
+import org.junit.Test;
 
 public class IdTest {
   @Test
   public void next() {
     assertTrue(Id.next() > 0);
+  }
+
+  @Test
+  public void dbid() {
+    assertTrue(DbId.next() > 0);
   }
 }

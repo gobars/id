@@ -12,7 +12,7 @@ before_install:
   - echo "Wait to allow Oracle to be initialized"
   - travis_wait sleep 10
   - docker top oracle
-  - docker exec -it mysql mysql -u root -p'root' -s -e "create database id;create table id.worker_id(id bigint auto_increment primary key,created datetime default current_timestamp,hostname varchar(60),reason varchar(60),biz varchar(60))engine=innodb default charset=utf8mb4;"
+  - docker exec -it mysql mysql -u root -p'root' -s -e "create database id;create table id.worker_id(id bigint auto_increment primary key,created datetime default current_timestamp,ip varchar(60),hostname varchar(60),pid int,reason varchar(60),biz varchar(60))engine=innodb default charset=utf8mb4;"
 
 language: java
 install: mvn install -DskipTests -Dgpg.skip

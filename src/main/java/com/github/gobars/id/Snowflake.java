@@ -31,40 +31,6 @@ public class Snowflake {
     log.debug("Snowflake created from conf {} with workerId {}", conf, workerId);
   }
 
-  @SneakyThrows
-  public static BaseConf fromSpec(String spec) {
-    val builder = BaseConf.builder();
-
-    String[] items = spec.split(",");
-    for (String item : items) {
-      item = item.trim();
-      if (item.length() == 0) {
-        continue;
-      }
-
-      String[] parts = item.split("=", 2);
-      String key = parts[0];
-      String val = parts[1];
-      if (key.equals("epoch")) {
-        builder.epoch(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(val).getTime());
-      } else if (key.equals("timestampBits")) {
-        builder.timestampBits(Integer.parseInt(val));
-      } else if (key.equals("roundMillis")) {
-        builder.roundMillis(Integer.parseInt(val));
-      } else if (key.equals("backwardBits")) {
-        builder.backwardBits(Integer.parseInt(val));
-      } else if (key.equals("workerBits")) {
-        builder.workerBits(Integer.parseInt(val));
-      } else if (key.equals("sequenceBits")) {
-        builder.sequenceBits(Integer.parseInt(val));
-      } else if (key.equals("maxBackwardMillis")) {
-        builder.maxBackwardMillis(Integer.parseInt(val));
-      }
-    }
-
-    return builder.build();
-  }
-
   public synchronized long next() {
     long cur = timeBackDeal();
 
@@ -146,6 +112,40 @@ public class Snowflake {
     int sequenceBits;
     /** 7 最大时间回拨 */
     long maxBackwardMillis;
+
+    @SneakyThrows
+    public static BaseConf fromSpec(String spec) {
+      val builder = BaseConf.builder();
+
+      String[] items = spec.split(",");
+      for (String item : items) {
+        item = item.trim();
+        if (item.length() == 0) {
+          continue;
+        }
+
+        String[] parts = item.split("=", 2);
+        String key = parts[0];
+        String val = parts[1];
+        if (key.equals("epoch")) {
+          builder.epoch(new SimpleDateFormat("yyyyMMdd").parse(val).getTime());
+        } else if (key.equals("timestampBits")) {
+          builder.timestampBits(Integer.parseInt(val));
+        } else if (key.equals("roundMillis")) {
+          builder.roundMillis(Integer.parseInt(val));
+        } else if (key.equals("backwardBits")) {
+          builder.backwardBits(Integer.parseInt(val));
+        } else if (key.equals("workerBits")) {
+          builder.workerBits(Integer.parseInt(val));
+        } else if (key.equals("sequenceBits")) {
+          builder.sequenceBits(Integer.parseInt(val));
+        } else if (key.equals("maxBackwardMillis")) {
+          builder.maxBackwardMillis(Integer.parseInt(val));
+        }
+      }
+
+      return builder.build();
+    }
   }
 
   @Value
@@ -176,6 +176,11 @@ public class Snowflake {
     int backwardShift;
     int timestampShift;
     long maxTimestamp;
+
+    @SneakyThrows
+    public static Conf fromSpec(String spec) {
+      return new Conf(BaseConf.fromSpec(spec));
+    }
 
     public Conf(BaseConf baseConf) {
       this.epoch = baseConf.epoch;
