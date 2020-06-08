@@ -1,4 +1,4 @@
-package com.github.gobars.id;
+package com.github.gobars.id.ext;
 
 import static org.junit.Assert.assertTrue;
 

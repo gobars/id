@@ -1,9 +1,9 @@
-package com.github.gobars.id;
+package com.github.gobars.id.worker;
 
-import lombok.extern.slf4j.Slf4j;
-
+import com.github.gobars.id.WorkerId;
 import java.util.Arrays;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * WorkerId组合器

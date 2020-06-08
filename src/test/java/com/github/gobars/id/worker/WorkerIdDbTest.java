@@ -1,7 +1,8 @@
-package com.github.gobars.id;
+package com.github.gobars.id.worker;
 
 import static org.junit.Assert.assertTrue;
 
+import com.github.gobars.id.conf.ConnGetter;
 import lombok.SneakyThrows;
 import lombok.val;
 import org.junit.Test;

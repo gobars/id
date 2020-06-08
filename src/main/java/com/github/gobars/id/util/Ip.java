@@ -1,4 +1,4 @@
-package com.github.gobars.id;
+package com.github.gobars.id.util;
 
 import java.net.InetAddress;
 import java.net.NetworkInterface;

@@ -1,4 +1,4 @@
-package com.github.gobars.id;
+package com.github.gobars.id.db;
 
 import java.sql.*;
 import java.util.*;

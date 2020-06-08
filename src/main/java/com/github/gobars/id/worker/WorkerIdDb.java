@@ -1,5 +1,9 @@
-package com.github.gobars.id;
+package com.github.gobars.id.worker;
 
+import com.github.gobars.id.WorkerId;
+import com.github.gobars.id.conf.ConnGetter;
+import com.github.gobars.id.db.SqlRunner;
+import com.github.gobars.id.util.Pid;
 import lombok.Cleanup;
 import lombok.Data;
 import lombok.SneakyThrows;

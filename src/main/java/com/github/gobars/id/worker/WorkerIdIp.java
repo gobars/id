@@ -1,5 +1,7 @@
-package com.github.gobars.id;
+package com.github.gobars.id.worker;
 
+import com.github.gobars.id.WorkerId;
+import com.github.gobars.id.util.Ip;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 

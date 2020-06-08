@@ -1,4 +1,4 @@
-package com.github.gobars.id;
+package com.github.gobars.id.conf;
 
 import java.sql.Connection;
 import java.sql.DriverManager;

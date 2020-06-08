@@ -1,4 +1,4 @@
-package com.github.gobars.id;
+package com.github.gobars.id.worker;
 
 import com.google.common.truth.Truth;
 import org.junit.Rule;

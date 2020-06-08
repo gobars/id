@@ -1,4 +1,4 @@
-package com.github.gobars.id;
+package com.github.gobars.id.util;
 
 import java.lang.management.ManagementFactory;
 import lombok.experimental.UtilityClass;
@@ -8,7 +8,7 @@ import lombok.val;
 @Slf4j
 @UtilityClass
 public class Pid {
-  int pid = getProcessId(0);
+  public int pid = getProcessId(0);
 
   private int getProcessId(int fallback) {
     // Note: may fail in some JVM implementations

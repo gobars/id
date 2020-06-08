@@ -16,6 +16,49 @@ import com.github.gobars.Id;
 long bizID = Id.next();
 ```
 
+## 基于数据库`worker_id`表获得一次性workerId
+
+Spring 配置:
+
+```java
+@Configuration
+public class SpringAppConfig {
+  @Bean
+  public DataSource getDataSource() {
+    val dataSource = new DruidDataSource();
+    dataSource.setDriverClassName("com.mysql.jdbc.Driver");
+    dataSource.setUrl("jdbc:mysql://localhost:3306/id?useSSL=false");
+    dataSource.setUsername("root");
+    dataSource.setPassword("root");
+
+    return dataSource;
+  }
+
+  @Bean
+  public IdNext idNext(@Autowired DataSource dataSource) {
+    val connGetter = new ConnGetter.DsConnGetter(dataSource);
+    val workerIdDb = new WorkerIdDb().table("worker_id").connGetter(connGetter).biz("default");
+    val spec = "epoch=20200603,timestampBits=41,backwardBits=0,workerBits=10,seqBits=12,roundMs=1";
+    return new SnowflakeDb(Conf.fromSpec(spec), workerIdDb);
+  }
+}
+```
+
+使用:
+
+```java
+@Bean
+public class XXService{
+  @Autowired IdNext id;
+
+  public void business() {
+    // ...
+    long bizID = id.next();
+    // ...
+  }
+}
+```
+
 ## WorkerId 获取顺序
 
 1. 系统属性或者环境变量 `WORKERID`
@@ -68,8 +111,8 @@ create table worker_id
   default charset = utf8mb4 comment 'worker id 分配表';
 ```
 
-online:
+or online format:
 
 ```sql
-create table worker_id(id bigint auto_increment primary key, created datetime default current_timestamp,ip varchar(60),hostname varchar(60),pid int,reason varchar(60),biz varchar(60))engine = innodb default charset = utf8mb4;
+drop table if exists worker_id;create table worker_id(id bigint auto_increment primary key, created datetime default current_timestamp,ip varchar(60),hostname varchar(60),pid int,reason varchar(60),biz varchar(60))engine = innodb default charset = utf8mb4;
 ```

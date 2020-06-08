@@ -1,15 +1,19 @@
-package com.github.gobars.id;
+package com.github.gobars.id.ext;
 
+import com.github.gobars.id.IdNext;
+import com.github.gobars.id.Snowflake;
+import com.github.gobars.id.conf.Conf;
+import com.github.gobars.id.worker.*;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class Id12 {
   public final String SPEC =
-      "epoch=20200603,timestampBits=29,backwardBits=1,workerBits=3,sequenceBits=6,roundMillis=1000,maxBackwardMillis=1000";
+      "epoch=20200603,timestampBits=29,backwardBits=1,workerBits=3,seqBits=6,roundMs=1000,maxBackwardSleepMs=1000";
 
-  private final Snowflake next =
+  private final IdNext next =
       new Snowflake(
-          Snowflake.Conf.fromSpec(SPEC),
+          Conf.fromSpec(SPEC),
           new WorkerIdComposite(
                   new WorkerIdEnv(), new WorkerIdHostname(), new WorkerIdIp(), new WorkerIdRandom())
               .workerId());

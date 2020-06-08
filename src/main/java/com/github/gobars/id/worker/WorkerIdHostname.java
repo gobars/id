@@ -1,5 +1,6 @@
-package com.github.gobars.id;
+package com.github.gobars.id.worker;
 
+import com.github.gobars.id.WorkerId;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;

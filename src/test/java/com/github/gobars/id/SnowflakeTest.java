@@ -3,6 +3,11 @@ package com.github.gobars.id;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
+import com.github.gobars.id.conf.Conf;
+import com.github.gobars.id.conf.ConnGetter;
+import com.github.gobars.id.db.SnowflakeDb;
+import com.github.gobars.id.util.Util;
+import com.github.gobars.id.worker.WorkerIdDb;
 import java.io.File;
 import java.security.SecureRandom;
 import lombok.val;
@@ -22,7 +27,7 @@ public class SnowflakeTest {
 
   @Test
   public void backward() {
-    val conf = Snowflake.Conf.fromSpec(Id.SPEC);
+    val conf = Conf.fromSpec(Id.SPEC);
     val sf = new TimebackSnowflake(conf, 0);
 
     sf.currentMillis = System.currentTimeMillis();
@@ -38,7 +43,7 @@ public class SnowflakeTest {
 
   @Test
   public void backwardDb() {
-    val conf = Snowflake.Conf.fromSpec(Id.SPEC);
+    val conf = Conf.fromSpec(Id.SPEC);
 
     val url = "jdbc:mysql://localhost:3306/id?useSSL=false";
     val ds = new ConnGetter.JdbcConnGetter(url, "root", "root");
@@ -57,7 +62,7 @@ public class SnowflakeTest {
 
   @Test
   public void conf() {
-    val conf = Snowflake.Conf.fromSpec(Id.SPEC);
+    val conf = Conf.fromSpec(Id.SPEC);
 
     assertEquals(8, conf.getWorkerBits());
     assertEquals(255, conf.getMaxWorkerId());

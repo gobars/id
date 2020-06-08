@@ -1,4 +1,6 @@
-package com.github.gobars.id;
+package com.github.gobars.id.worker;
+
+import com.github.gobars.id.WorkerId;
 
 /** 活动从环境变量中指定的WorkerID */
 public class WorkerIdEnv implements WorkerId {
