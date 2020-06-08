@@ -8,7 +8,7 @@ import lombok.val;
 @Slf4j
 @UtilityClass
 public class Pid {
-  public int pid = getProcessId(0);
+  public final int PROCESS_ID = getProcessId(0);
 
   private int getProcessId(int fallback) {
     // Note: may fail in some JVM implementations

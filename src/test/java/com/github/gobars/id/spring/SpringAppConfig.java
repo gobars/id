@@ -5,7 +5,7 @@ import com.github.gobars.id.IdNext;
 import com.github.gobars.id.conf.Conf;
 import com.github.gobars.id.conf.ConnGetter;
 import com.github.gobars.id.db.SnowflakeDb;
-import com.github.gobars.id.worker.WorkerIdDb;
+import com.github.gobars.id.db.WorkerIdDb;
 import javax.sql.DataSource;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;

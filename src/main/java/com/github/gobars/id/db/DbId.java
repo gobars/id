@@ -3,7 +3,6 @@ package com.github.gobars.id.db;
 import com.github.gobars.id.Id;
 import com.github.gobars.id.conf.Conf;
 import com.github.gobars.id.conf.ConnGetter;
-import com.github.gobars.id.worker.WorkerIdDb;
 import javax.sql.DataSource;
 import lombok.experimental.UtilityClass;
 import lombok.val;

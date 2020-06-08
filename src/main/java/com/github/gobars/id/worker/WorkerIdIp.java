@@ -2,6 +2,7 @@ package com.github.gobars.id.worker;
 
 import com.github.gobars.id.WorkerId;
 import com.github.gobars.id.util.Ip;
+import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 
@@ -14,18 +15,23 @@ import lombok.val;
  */
 @Slf4j
 public class WorkerIdIp implements WorkerId {
-  public static String localIP;
-  private static int workerId;
+  private static final IdIp ID_IP = init();
 
-  static {
+  public static final String LOCAL_IP = ID_IP.getLocalIp();
+  public static final int WORKER_ID = ID_IP.getWorkerId();
+
+  private static IdIp init() {
     try {
       val addr = Ip.getLocalHostLANAddress();
-      localIP = addr.getHostAddress();
+      val localIP = addr.getHostAddress();
       byte[] bytes = addr.getAddress();
-      workerId = bytes[bytes.length - 1] & 0xff;
+      val workerId = bytes[bytes.length - 1] & 0xff;
+      return new IdIp(workerId, localIP);
     } catch (Exception ex) {
       log.warn("failed to determine LAN address", ex);
     }
+
+    return new IdIp(0, "unknown");
   }
 
   /**
@@ -35,6 +41,12 @@ public class WorkerIdIp implements WorkerId {
    */
   @Override
   public int workerId() {
-    return workerId;
+    return WORKER_ID;
+  }
+
+  @Value
+  static class IdIp {
+    int workerId;
+    String localIp;
   }
 }
