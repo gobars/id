@@ -29,7 +29,7 @@ public class WorkerIdDb implements WorkerId {
   public int workerId() {
     val s = "insert into " + table + "(ip, hostname, pid, reason, biz) values (?, ?, ?, ?, ?)";
     @Cleanup val conn = connGetter.getConn();
-    val r = new SqlRunner(conn);
+    val r = new SqlRunner(conn, true);
     return r.insert(s, WorkerIdIp.LOCAL_IP, WorkerIdHostname.HOSTNAME, Pid.PROCESS_ID, reason, biz);
   }
 }

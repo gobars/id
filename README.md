@@ -116,3 +116,45 @@ or online format:
 ```sql
 drop table if exists worker_id;create table worker_id(id bigint auto_increment primary key, created datetime default current_timestamp,ip varchar(60),hostname varchar(60),pid int,reason varchar(60),biz varchar(60))engine = innodb default charset = utf8mb4;
 ```
+
+### Oracle
+
+```sql
+drop table worker_id;
+create table worker_id
+(
+    id       int primary key,
+    created  timestamp default current_timestamp,
+    ip       varchar2(60),
+    hostname varchar2(60),
+    pid      int,
+    reason   varchar2(60),
+    biz      varchar2(60)
+);
+
+comment on table worker_id IS 'worker id 分配表';
+
+comment on column worker_id.id IS 'worker id';
+comment on column worker_id.created IS '创建时间';
+comment on column worker_id.ip IS '当前机器IP';
+comment on column worker_id.hostname IS '当前机器名称';
+comment on column worker_id.pid IS '应用程序PID';
+comment on column worker_id.reason IS '申请原因 start:启动 backwards:时间回拨';
+comment on column worker_id.biz IS '当前业务名称';
+
+CREATE SEQUENCE worker_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    CACHE 100;
+
+CREATE OR REPLACE TRIGGER trigger_worker_id_seq
+    BEFORE INSERT
+    ON worker_id
+    FOR EACH ROW
+BEGIN
+    SELECT worker_id_seq.nextval
+    INTO :new.id
+    FROM dual;
+END;
+
+```

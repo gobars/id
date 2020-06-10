@@ -6,13 +6,14 @@ before_install:
   - docker pull mysql:5.7
   - docker run -p 3306:3306 --name mysql -e MYSQL_ROOT_PASSWORD=root -d mysql:5.7
   - docker pull epiclabs/docker-oracle-xe-11g
-  - docker run --name oracle -d -p 127.0.0.1:1521:1521 -e ORACLE_ALLOW_REMOTE=true epiclabs/docker-oracle-xe-11g
+  - docker run --name oracle -d -p 127.0.0.1:1521:1521 -e ORACLE_ALLOW_REMOTE=true -v ${PWD}:/data epiclabs/docker-oracle-xe-11g
   # - docker inspect oracle
   # - docker ps -a
   - echo "Wait to allow Oracle to be initialized"
   - travis_wait sleep 10
   - docker top oracle
   - docker exec -it mysql mysql -u root -p'root' -s -e "create database id;create table id.worker_id(id bigint auto_increment primary key,created datetime default current_timestamp,ip varchar(60),hostname varchar(60),pid int,reason varchar(60),biz varchar(60))engine=innodb default charset=utf8mb4;"
+  - docker exec -it oracle bash -c "export ORACLE_HOME=/u01/app/oracle/product/11.2.0/xe; export ORACLE_SID=XE; echo exit | /u01/app/oracle/product/11.2.0/xe/bin/sqlplus system/oracle@xe @/data/src/test/resources/oracle.sql"
 
 language: java
 install: mvn install -DskipTests -Dgpg.skip
