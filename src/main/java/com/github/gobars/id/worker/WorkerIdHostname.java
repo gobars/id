@@ -1,12 +1,13 @@
 package com.github.gobars.id.worker;
 
 import com.github.gobars.id.WorkerId;
+import lombok.extern.slf4j.Slf4j;
+
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * 根据hostname命名归来了获取workerId.

@@ -1,11 +1,12 @@
 package com.github.gobars.id.conf;
 
-import java.text.SimpleDateFormat;
 import lombok.Builder;
 import lombok.SneakyThrows;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+
+import java.text.SimpleDateFormat;
 
 /** 雪花算法的基本配置 */
 @Value

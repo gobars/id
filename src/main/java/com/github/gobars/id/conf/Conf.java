@@ -1,10 +1,11 @@
 package com.github.gobars.id.conf;
 
-import java.util.HashMap;
-import java.util.Map;
 import lombok.SneakyThrows;
 import lombok.Value;
 import lombok.val;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Value
 public class Conf {

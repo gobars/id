@@ -3,9 +3,10 @@ package com.github.gobars.id.db;
 import com.github.gobars.id.Id;
 import com.github.gobars.id.conf.Conf;
 import com.github.gobars.id.conf.ConnGetter;
-import javax.sql.DataSource;
 import lombok.experimental.UtilityClass;
 import lombok.val;
+
+import javax.sql.DataSource;
 
 /**
  * ID生成器入口类。

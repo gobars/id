@@ -1,10 +1,12 @@
 package com.github.gobars.id;
 
 import com.github.gobars.id.conf.Conf;
+import com.github.gobars.id.util.SystemClock;
 import com.github.gobars.id.util.Util;
-import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+
+import java.util.Map;
 
 /**
  * 雪花算法实现
@@ -96,6 +98,6 @@ public class Snowflake implements IdNext {
   }
 
   protected long currentTimeMillis() {
-    return System.currentTimeMillis();
+    return SystemClock.now();
   }
 }

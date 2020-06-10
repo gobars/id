@@ -1,10 +1,10 @@
 package com.github.gobars.id.util;
 
-import static com.google.common.truth.Truth.assertThat;
-
 import com.alibaba.druid.pool.DruidDataSource;
 import lombok.val;
 import org.junit.Test;
+
+import static com.google.common.truth.Truth.assertThat;
 
 public class DbTypeTest {
   @Test

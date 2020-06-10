@@ -1,13 +1,13 @@
 package com.github.gobars.id.worker;
 
-import static org.junit.Assert.assertTrue;
-
 import com.alibaba.druid.pool.DruidDataSource;
 import com.github.gobars.id.conf.ConnGetter;
 import com.github.gobars.id.db.WorkerIdDb;
 import lombok.SneakyThrows;
 import lombok.val;
 import org.junit.Test;
+
+import static org.junit.Assert.assertTrue;
 
 public class WorkerIdDbTest {
   @Test

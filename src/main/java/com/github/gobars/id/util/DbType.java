@@ -1,9 +1,10 @@
 package com.github.gobars.id.util;
 
-import javax.sql.DataSource;
 import lombok.Cleanup;
 import lombok.SneakyThrows;
 import lombok.val;
+
+import javax.sql.DataSource;
 
 public enum DbType {
   /** 当前连接的是Oracle库 */

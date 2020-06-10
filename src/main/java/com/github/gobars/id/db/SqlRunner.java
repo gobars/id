@@ -1,10 +1,11 @@
 package com.github.gobars.id.db;
 
 import com.github.gobars.id.util.DbType;
-import java.sql.*;
-import java.util.*;
 import lombok.Cleanup;
 import lombok.val;
+
+import java.sql.*;
+import java.util.*;
 
 /**
  * SQL执行器.

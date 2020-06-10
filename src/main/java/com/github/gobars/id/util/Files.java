@@ -1,10 +1,11 @@
 package com.github.gobars.id.util;
 
-import java.io.*;
 import lombok.Cleanup;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+
+import java.io.*;
 
 @UtilityClass
 @Slf4j

@@ -1,17 +1,18 @@
 package com.github.gobars.id;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-
 import com.github.gobars.id.conf.Conf;
 import com.github.gobars.id.conf.ConnGetter;
 import com.github.gobars.id.db.SnowflakeDb;
 import com.github.gobars.id.db.WorkerIdDb;
 import com.github.gobars.id.util.Util;
-import java.io.File;
-import java.security.SecureRandom;
 import lombok.val;
 import org.junit.Test;
+
+import java.io.File;
+import java.security.SecureRandom;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 public class SnowflakeTest {
   @Test

@@ -1,10 +1,11 @@
 package com.github.gobars.id.conf;
 
+import lombok.Value;
+
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import javax.sql.DataSource;
-import lombok.Value;
 
 public interface ConnGetter {
   /**
