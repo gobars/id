@@ -13,7 +13,7 @@ before_install:
   - travis_wait sleep 10
   - docker top oracle
   - docker exec -it mysql mysql -u root -p'root' -s -e "create database id;create table id.worker_id(id bigint auto_increment primary key,created datetime default current_timestamp,ip varchar(60),hostname varchar(60),pid int,reason varchar(60),biz varchar(60))engine=innodb default charset=utf8mb4;"
-  - docker exec -it oracle bash -c "export ORACLE_HOME=/u01/app/oracle/product/11.2.0/xe; export ORACLE_SID=XE; echo exit | /u01/app/oracle/product/11.2.0/xe/bin/sqlplus system/oracle@xe @/data/src/test/resources/oracle.sql"
+  - docker exec -it oracle /bin/bash /data/scripts/wait-for-oracle.sh
 
 language: java
 install: mvn install -DskipTests -Dgpg.skip

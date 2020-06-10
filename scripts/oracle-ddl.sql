@@ -1,5 +1,4 @@
-drop table worker_id;
-
+-- drop table worker_id;
 create table worker_id
 (
     id       int primary key,
@@ -21,7 +20,7 @@ comment on column worker_id.pid IS '应用程序PID';
 comment on column worker_id.reason IS '申请原因 start:启动 backwards:时间回拨';
 comment on column worker_id.biz IS '当前业务名称';
 
-drop sequence worker_id_seq;
+-- drop sequence worker_id_seq;
 create sequence worker_id_seq
     start with 1
     increment by 1
@@ -36,6 +35,5 @@ begin
     into :new.id
     from dual;
 end;
-
 
 /
