@@ -63,10 +63,10 @@ public class Snowflake implements IdNext {
       return cur;
     }
 
-    long diff = lastTs - cur;
+    long diff = (lastTs - cur) * conf.getRoundMs();
     // 时间回拨 小于 x 秒时，直接等待diff秒后重新获取时间
-    if (diff <= conf.getMaxBackwardSleepMs() / conf.getRoundMs()) {
-      Util.sleep(diff * conf.getRoundMs());
+    if (diff <= conf.getMaxBackwardSleepMs()) {
+      Util.sleep(diff + 10);
       cur = currentTimeMillis() / conf.getRoundMs();
     }
 
@@ -82,6 +82,7 @@ public class Snowflake implements IdNext {
     if (backwardIdLastTimes != null) {
       for (val e : backwardIdLastTimes.entrySet()) {
         if (e.getValue() <= cur && e.getKey() != this.backwardId) {
+          log.info("rotate backward Id from {} to {}", this.backwardId, e.getKey());
           this.backwardId = e.getKey();
           Util.saveBackwardId(this.workerId, this.backwardId);
           return;
@@ -98,6 +99,13 @@ public class Snowflake implements IdNext {
   }
 
   protected long currentTimeMillis() {
-    return SystemClock.now();
+    switch (conf.getTimestampBy()) {
+      case SYSTEM:
+        return System.currentTimeMillis();
+      case NANO:
+        return System.nanoTime();
+      default:
+        return SystemClock.now();
+    }
   }
 }

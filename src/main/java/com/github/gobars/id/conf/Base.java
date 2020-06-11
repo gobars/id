@@ -31,6 +31,16 @@ public class Base {
   @Builder.Default int seqBits = 12;
   /** 7 最大时间回拨 */
   @Builder.Default long maxBackwardSleepMs = 1000;
+  /**
+   * 8 时间戳计算
+   *
+   * <p>cache: 基于SystemClock.now()
+   *
+   * <p>system: 基于System.currentMillis()
+   *
+   * <p>nano: 基于System.nanoTime()
+   */
+  @Builder.Default String timestampBy = "cache";
 
   @SneakyThrows
   public static Base fromSpec(String spec) {
@@ -61,6 +71,8 @@ public class Base {
         builder.seqBits(Integer.parseInt(val));
       } else if (key.equals("maxBackwardSleepMs")) {
         builder.maxBackwardSleepMs(Integer.parseInt(val));
+      } else if (key.equals("timestampBy")) {
+        builder.timestampBy(val);
       }
     }
 

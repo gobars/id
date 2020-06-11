@@ -23,6 +23,8 @@ public class Conf {
   int seqBits;
   /** 最大时间回拨 */
   long maxBackwardSleepMs;
+  /** 8 时间戳计算 */
+  TimestampByEnum timestampBy;
 
   /** 最大自增序号 */
   long maxSequence;
@@ -44,6 +46,7 @@ public class Conf {
     this.workerBits = base.getWorkerBits();
     this.seqBits = base.getSeqBits();
     this.maxBackwardSleepMs = base.getMaxBackwardSleepMs();
+    this.timestampBy = parseTimestampBy(base.getTimestampBy());
 
     this.maxSequence = ~(-1L << seqBits);
     this.maxWorkerId = ~(-1L << workerBits);
@@ -53,6 +56,26 @@ public class Conf {
     this.workerIdShift = seqBits;
     this.backwardShift = workerBits + seqBits;
     this.timestampShift = backwardBits + this.backwardShift;
+  }
+
+  public enum TimestampByEnum {
+    /** 基于SystemClock.now() */
+    NANO,
+    /** 基于System.currentMillis() */
+    SYSTEM,
+    /** SystemClock.now() */
+    CACHE;
+  }
+
+  private TimestampByEnum parseTimestampBy(String timestampBy) {
+    if ("nano".equals(timestampBy)) {
+      return TimestampByEnum.NANO;
+    } else if ("system".equals(timestampBy)) {
+      return TimestampByEnum.SYSTEM;
+    } else {
+      // nano and the default
+      return TimestampByEnum.CACHE;
+    }
   }
 
   @SneakyThrows

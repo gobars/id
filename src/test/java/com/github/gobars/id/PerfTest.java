@@ -1,8 +1,7 @@
 package com.github.gobars.id;
 
+import org.junit.Assert;
 import org.junit.Test;
-
-import static org.junit.Assert.assertTrue;
 
 public class PerfTest {
   public static final int SIZE = 100000;
@@ -13,7 +12,9 @@ public class PerfTest {
     long last = 0;
     for (int i = 0; i < SIZE; i++) {
       long n = Id.next();
-      assertTrue(n > last);
+      if (n <= last) {
+        Assert.fail("i:" + i);
+      }
       last = n;
     }
 
