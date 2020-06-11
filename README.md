@@ -27,7 +27,7 @@ public class SpringAppConfig {
   public DataSource getDataSource() {
     val dataSource = new DruidDataSource();
     dataSource.setDriverClassName("com.mysql.jdbc.Driver");
-    dataSource.setUrl("jdbc:mysql://localhost:3306/id?useSSL=false");
+    dataSource.setUrl(jdbc:mysql://localhost:3306/id?useSSL=false&zeroDateTimeBehavior=convertToNull&useUnicode=yes&autoReconnect=true&characterEncoding=UTF-8&characterSetResults=UTF-8");
     dataSource.setUsername("root");
     dataSource.setPassword("root");
 
@@ -43,6 +43,19 @@ public class SpringAppConfig {
   }
 }
 ```
+
+Spec说明：
+
+Spec | 值格式 | 默认值 | 说明
+---  | --- | --- | --- 
+epoch| yyyyMMdd|20200603|服务器第一次上线时间点
+timestampBits|整型|41| 时间戳占用比特位数
+roundMs|整型|1|时间戳规整到的时间单位(毫秒)
+backwardBits|整型|0|时间回拨序号占用比特位数
+workerBits|整型|10|worker占用比特位数
+seqBits|整型|12|自增序号占用比特位数
+maxBackwardSleepMs|整型|1000| 最大时间回拨 
+timestampBy|cache/system/nano|cache|时间戳计算算法 cache: SystemClock.now(), system: System.currentMillis(),nano: System.nanoTime()
 
 使用:
 
