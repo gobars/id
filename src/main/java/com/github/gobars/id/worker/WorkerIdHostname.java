@@ -55,6 +55,12 @@ public class WorkerIdHostname implements WorkerId {
       log.warn("exec hostname", ex);
     }
 
+    // Maybe very slow
+    // [main] WARN org.springframework.boot.StartupInfoLogger -
+    // InetAddress.getLocalHost().getHostName() took 5006 milliseconds to respond.
+    // Please verify your network configuration (macOS machines may need to add entries to
+    // /etc/hosts).
+
     return "Unknown";
   }
 
