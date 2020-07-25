@@ -4,6 +4,7 @@ import lombok.SneakyThrows;
 import lombok.Value;
 import lombok.val;
 
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -95,5 +96,42 @@ public class Conf {
     }
 
     return m;
+  }
+
+  public IDPart parseID(long id) {
+    IDPart idPart = new IDPart();
+    idPart.id = id;
+    idPart.timestamp = (id >> getTimestampShift()) + getEpoch();
+    idPart.backwardId = ((id >> getBackwardShift()) & getMaxBackwardId());
+    idPart.workerID = (id >> getWorkerIdShift()) & getMaxWorkerId();
+    idPart.sequence = id & getMaxSequence();
+
+    return idPart;
+  }
+
+  public static class IDPart {
+    public long id;
+    public long timestamp;
+    public long backwardId;
+    public long workerID;
+    public long sequence;
+
+    @Override
+    public String toString() {
+      return "IDPart{"
+          + "id="
+          + id
+          + ", timestamp="
+          + timestamp
+          + ", timestampFormat="
+          + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(timestamp)
+          + ", backwardId="
+          + backwardId
+          + ", workerID="
+          + workerID
+          + ", sequence="
+          + sequence
+          + '}';
+    }
   }
 }

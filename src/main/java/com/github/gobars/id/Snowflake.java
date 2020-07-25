@@ -51,7 +51,7 @@ public class Snowflake implements IdNext {
       backwardIdLastTimes.put(backwardId, lastTs);
     }
 
-    return cur - conf.getEpoch() << conf.getTimestampShift() & conf.getMaxTimestamp()
+    return ((cur - conf.getEpoch()) & conf.getMaxTimestamp()) << conf.getTimestampShift()
         | backwardId << conf.getBackwardShift()
         | workerId << conf.getWorkerIdShift()
         | sequence;
