@@ -34,8 +34,8 @@ public class Files {
       return workerID;
     }
 
-    int incr = (workerID % 100) * 100;
-    for (int i = workerID + incr; i < workerID + 1000; i++) {
+    int incr = workerID % 100;
+    for (int i = workerID + incr, j = 0; j < 1024; i += incr) {
       if (lockWorkerID(i)) {
         return i;
       }
