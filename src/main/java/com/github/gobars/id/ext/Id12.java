@@ -15,7 +15,11 @@ public class Id12 {
       new Snowflake(
           Conf.fromSpec(SPEC),
           new WorkerIdComposite(
-                  new WorkerIdEnv(), new WorkerIdHostname(), new WorkerIdIp(), new WorkerIdRandom())
+                  new WorkerIdEnv(),
+                  new WorkerIdLocalLockFile(),
+                  new WorkerIdHostname(),
+                  new WorkerIdIp(),
+                  new WorkerIdRandom())
               .workerId());
 
   /**

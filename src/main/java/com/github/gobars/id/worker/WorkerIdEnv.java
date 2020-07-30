@@ -2,7 +2,11 @@ package com.github.gobars.id.worker;
 
 import com.github.gobars.id.WorkerId;
 
-/** 活动从环境变量中指定的WorkerID */
+/**
+ * 获得从环境变量中指定的WorkerID
+ *
+ * @author bingoohuang
+ */
 public class WorkerIdEnv implements WorkerId {
   public static final String WORKER_ID = "WORKERID";
 

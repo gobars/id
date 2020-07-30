@@ -16,6 +16,7 @@ import java.util.Date;
 @Slf4j
 public class Files {
   public final String GOBARS_ID = System.getProperty("user.home") + File.separator + ".gobars_id";
+  public static final String WORKER_ID_PREFIX = "workerID.";
 
   static {
     File dir = new File(GOBARS_ID);
@@ -29,14 +30,14 @@ public class Files {
     return GOBARS_ID + File.separator + filename;
   }
 
-  public int findAvailableWorkerID(int workerID) {
-    if (lockWorkerID(workerID)) {
+  public int findAvailableWorkerID(int workerID, boolean allowOverlapping) {
+    if (lockWorkerID(workerID, allowOverlapping)) {
       return workerID;
     }
 
     int incr = workerID % 100;
     for (int i = workerID + incr, j = 0; j < 1024; i += incr) {
-      if (lockWorkerID(i)) {
+      if (lockWorkerID(i, allowOverlapping)) {
         return i;
       }
     }
@@ -44,12 +45,48 @@ public class Files {
     return -1;
   }
 
-  public boolean lockWorkerID(int workerID) {
-    return tryLockFile(homeFile("workerID." + workerID));
+  /**
+   * 找出目前本地已经生成的锁定文件的一个可用worderID列表.
+   *
+   * @return 本地锁定文件的worderID列表.
+   */
+  public int tryAvailableLocalWorker(boolean allowOverlapping) {
+    File[] files = new File(GOBARS_ID).listFiles();
+
+    if (files == null) {
+      return -1;
+    }
+
+    for (File file : files) {
+      if (file.isDirectory()) {
+        continue;
+      }
+
+      String fn = file.getName();
+      if (!fn.startsWith(WORKER_ID_PREFIX)) {
+        continue;
+      }
+
+      String workerId = fn.substring(WORKER_ID_PREFIX.length());
+      try {
+        int i = Integer.parseInt(workerId);
+        if (lockWorkerID(i, allowOverlapping)) {
+          return i;
+        }
+      } catch (Exception ignore) {
+        log.warn("bad worker id {}", workerId);
+      }
+    }
+
+    return -1;
+  }
+
+  public boolean lockWorkerID(int workerID, boolean allowOverlapping) {
+    return tryLockFile(homeFile(WORKER_ID_PREFIX + workerID), allowOverlapping);
   }
 
   @SneakyThrows
-  public boolean tryLockFile(String filename) {
+  public boolean tryLockFile(String filename, boolean allowOverlapping) {
     try {
       val f = new RandomAccessFile(filename, "rw");
       if (f.getChannel().tryLock() == null) {
@@ -61,6 +98,9 @@ public class Files {
       f.writeBytes(processId);
       return true;
     } catch (OverlappingFileLockException e) {
+      return allowOverlapping;
+    } catch (Exception ignore) {
+
     }
 
     return false;
