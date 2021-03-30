@@ -39,14 +39,45 @@ public class SqlRunner {
   public Map<String, String> selectOne(String sql, Object... args) throws SQLException {
     @Cleanup val ps = cnn.prepareStatement(sql);
     setParameters(ps, args);
-    val rs = ps.executeQuery();
-    val results = getResults(rs, 2);
+    @Cleanup val rs = ps.executeQuery();
+    val results = getResults(rs, 1);
 
     if (results.size() != 1) {
       throw new SQLException("Statement returned more results where exactly one (1) was expected.");
     }
 
     return results.get(0);
+  }
+
+  /**
+   * Executes a SELECT statement that returns the first column's long value.
+   *
+   * @param sql The SQL
+   * @param args The arguments to be set on the statement.
+   * @return the first column's long value.
+   * @throws SQLException If less or more than one row is returned
+   */
+  public long selectLong(String sql, Object... args) throws SQLException {
+    @Cleanup val ps = cnn.prepareStatement(sql);
+    setParameters(ps, args);
+    @Cleanup val rs = ps.executeQuery();
+    return getLong(rs);
+  }
+
+  /**
+   * Executes a SELECT statement that returns the first column's long value.
+   *
+   * @param sql The SQL
+   * @param args The arguments to be set on the statement.
+   * @return the first column's long value.
+   * @throws SQLException If less or more than one row is returned
+   */
+  public void select(int limit, RowScanner scanner, String sql, Object... args)
+      throws SQLException {
+    @Cleanup val ps = cnn.prepareStatement(sql);
+    setParameters(ps, args);
+    @Cleanup val rs = ps.executeQuery();
+    getObjects(rs, limit, scanner);
   }
 
   /**
@@ -60,7 +91,7 @@ public class SqlRunner {
   public List<Map<String, String>> selectAll(String sql, Object... args) throws SQLException {
     @Cleanup val ps = cnn.prepareStatement(sql);
     setParameters(ps, args);
-    val rs = ps.executeQuery();
+    @Cleanup val rs = ps.executeQuery();
     return getResults(rs, -1);
   }
 
@@ -83,6 +114,20 @@ public class SqlRunner {
     }
 
     return NO_GENERATED_KEY;
+  }
+
+  /**
+   * Executes an UPDATE statement.
+   *
+   * @param sql The updatet SQL
+   * @param args The arguments to be set on the statement.
+   * @return The number of rows effected.
+   * @throws SQLException If statement preparation or execution fails
+   */
+  public int update(String sql, Object... args) throws SQLException {
+    @Cleanup val ps = prepareStatement(cnn, sql);
+    setParameters(ps, args);
+    return ps.executeUpdate();
   }
 
   /**
@@ -146,7 +191,8 @@ public class SqlRunner {
   }
 
   private int parseGeneratedKey(PreparedStatement ps) throws SQLException {
-    val keys = getResults(ps.getGeneratedKeys(), 1);
+    @Cleanup val rs = ps.getGeneratedKeys();
+    val keys = getResults(rs, 1);
     if (keys.isEmpty()) {
       return -1;
     }
@@ -176,9 +222,7 @@ public class SqlRunner {
     }
   }
 
-  public List<Map<String, String>> getResults(ResultSet resultSet, int limit) throws SQLException {
-    @Cleanup val rs = resultSet;
-
+  public List<Map<String, String>> getResults(ResultSet rs, int limit) throws SQLException {
     val cols = new ArrayList<String>(10);
     val md = rs.getMetaData();
     for (int i = 0, n = md.getColumnCount(); i < n; i++) {
@@ -199,4 +243,26 @@ public class SqlRunner {
 
     return list;
   }
+
+  public long getLong(ResultSet rs) throws SQLException {
+    if (rs.next()) {
+      return rs.getLong(1);
+    }
+
+    throw new NoRowsFoundException();
+  }
+
+  public interface RowScanner {
+    boolean scanRow(int rowIndex, ResultSet rs) throws SQLException;
+  }
+
+  public void getObjects(ResultSet rs, int limit, RowScanner scanner) throws SQLException {
+    for (int i = 0; rs.next() && (limit <= 0 || i < limit); i++) {
+      if (!scanner.scanRow(i, rs)) {
+        break;
+      }
+    }
+  }
+
+  public static class NoRowsFoundException extends SQLException {}
 }
