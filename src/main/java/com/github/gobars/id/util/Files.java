@@ -48,6 +48,7 @@ public class Files {
   /**
    * 找出目前本地已经生成的锁定文件的一个可用worderID列表.
    *
+   * @param allowOverlapping if allow overlapping for the lock.
    * @return 本地锁定文件的worderID列表.
    */
   public int tryAvailableLocalWorker(boolean allowOverlapping) {

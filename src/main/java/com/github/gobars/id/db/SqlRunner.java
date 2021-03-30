@@ -67,9 +67,10 @@ public class SqlRunner {
   /**
    * Executes a SELECT statement that returns the first column's long value.
    *
-   * @param sql The SQL
+   * @param limit limit rows to scan.
+   * @param scanner the user defined scanner.
+   * @param sql The SQL.
    * @param args The arguments to be set on the statement.
-   * @return the first column's long value.
    * @throws SQLException If less or more than one row is returned
    */
   public void select(int limit, RowScanner scanner, String sql, Object... args)
