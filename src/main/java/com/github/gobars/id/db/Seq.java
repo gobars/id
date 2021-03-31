@@ -19,7 +19,6 @@ import java.sql.SQLException;
 @Data
 public class Seq implements IdNext {
   private final Object LOCK = new Object();
-  private static final int START_SEQ = 10000;
 
   @Accessors(fluent = true)
   private ConnGetter connGetter;
@@ -33,70 +32,91 @@ public class Seq implements IdNext {
   private int waterLevel;
   private int step;
 
+  // 最大序列值，从表中取得，0时不设置
   private long maxSeq;
+  // 是否循环，结合 maxSeq 使用，从表中取得
   private boolean cycle;
 
-  // 当前序列
+  // 序列1
   private long seq1;
+  // 序列2
   private long seq2;
-  // 当前序列号
+  // 当前序列，初始值0表示未设置，1时当前使用se1, 2时当前使用seq2
   private int curr;
-  // 当前序列剩余
+  // 序列1剩余
   private int avail1;
+  // 序列2剩余
   private int avail2;
 
-  private boolean updating;
+  // 正在更新的线程
+  private Thread thread;
 
   public long next() {
     synchronized (LOCK) {
-      if (maxSeq > 0 && (seq1 > maxSeq || seq2 > maxSeq)) {
-        throw new OverMaxSeqException();
-      }
-
-      long v = 0;
-      long avail = 0;
-      for (int retries = 0; retries < 2; retries++) {
-        if (avail1 <= 0 && avail2 <= 0) {
-          triggerUpdate(false);
-        }
-
-        if (curr == 0) {
-          curr = avail1 > 0 ? 1 : 2;
-        } else if (curr == 1 && avail1 <= 0) {
-          curr = 2;
-        } else if (curr == 2 && avail2 <= 0) {
-          curr = 1;
-        }
-
-        if (curr == 1) {
-          v = seq1;
-          seq1++;
-          avail = --avail1;
-        } else {
-          v = seq2;
-          seq2++;
-          avail = --avail2;
-        }
-
-        if (maxSeq > 0 && v >= maxSeq) {
-          if (cycle) {
-            resetState();
-            resetDb();
-            continue;
-          }
-
-          throw new OverMaxSeqException();
-        }
-
-        break;
-      }
-
-      if (avail <= waterLevel) {
-        triggerUpdate(true);
-      }
-
-      return v;
+      return nextInternal();
     }
+  }
+
+  public long nextInternal() {
+    if (maxSeq > 0 && (seq1 > maxSeq || seq2 > maxSeq)) {
+      throw new OverMaxSeqException();
+    }
+
+    for (int retries = 0; retries < 3; retries++) {
+      Long v = getNext();
+      if (v != null) {
+        return v;
+      }
+    }
+
+    throw new OverTriesException();
+  }
+
+  private Long getNext() {
+    if (avail1 <= 0 && avail2 <= 0) {
+      // 两个序列都没有值，触发同步更新
+      updateSync();
+    }
+
+    if (curr == 0) {
+      curr = avail1 > 0 ? 1 : 2;
+    } else if (curr == 1 && avail1 <= 0) {
+      curr = 2;
+    } else if (curr == 2 && avail2 <= 0) {
+      curr = 1;
+    }
+
+    long v;
+    long avail;
+    if (curr == 1) {
+      v = seq1;
+      seq1++;
+      avail = --avail1;
+    } else {
+      v = seq2;
+      seq2++;
+      avail = --avail2;
+    }
+
+    if (maxSeq > 0 && v > maxSeq) {
+      // 达到最大序列
+      if (cycle) {
+        // 循环从头开始
+        resetState();
+        resetDb();
+        // 返回 null, 重试
+        return null;
+      }
+
+      throw new OverMaxSeqException();
+    }
+
+    if (avail == waterLevel) {
+      // 达到水位线，触发异步更新
+      updateAsync();
+    }
+
+    return v;
   }
 
   private void resetState() {
@@ -107,40 +127,22 @@ public class Seq implements IdNext {
     avail2 = 0;
   }
 
-  private void triggerUpdate(boolean async) {
-    if (avail1 > 0 && avail2 > 0) {
-      return;
-    }
-
-    if (!async) {
-      updateSeq();
-      return;
-    }
-
-    if (updating) {
-      updateSeq();
-      return;
-    }
-
-    new Thread(
-            new Runnable() {
-              @Override
-              public void run() {
-                updateSeqLock();
-              }
-            })
-        .start();
+  private void updateAsync() {
+    Runnable r =
+        new Runnable() {
+          @Override
+          public void run() {
+            synchronized (LOCK) {
+              updateSync();
+            }
+          }
+        };
+    new Thread(r).start();
   }
 
-  private void updateSeqLock() {
-    synchronized (LOCK) {
-      updateSeq();
-      updating = false;
-    }
-  }
-
-  private void updateSeq() {
+  private void updateSync() {
     if (avail1 > 0 && avail2 > 0) {
+      // 都有值时，不触发更新
       return;
     }
 
@@ -216,4 +218,6 @@ public class Seq implements IdNext {
   }
 
   public static class OverMaxSeqException extends RuntimeException {}
+
+  public static class OverTriesException extends RuntimeException {}
 }
