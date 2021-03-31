@@ -110,7 +110,7 @@ Id12.next()|1 bit  | 29 bit (s) | 1 bit    | 3 bit      | 6 bit          | 2^39=
 
 ## 脚本
 
-### MySQL
+### 直接使用表作为序列器
 
 ```sql
 drop table if exists t_seq;
@@ -127,6 +127,51 @@ create table t_seq
     updated     datetime on update current_timestamp comment '更新时间'
 ) engine = innodb
   default charset = utf8mb4 comment '序列取号表';
+```
+
+示例代码
+
+```java
+
+@SpringBootApplication
+public class Application {
+    public static void main(String[] args) {
+        SpringApplication.run(Application.class, args);
+    }
+
+    @Bean
+    public DataSource getDataSource() {
+        DruidDataSource ds = new DruidDataSource();
+        ds.setDriverClassName("com.mysql.jdbc.Driver");
+        ds.setUrl(
+                "jdbc:mysql://192.168.1.1:3306/id" +
+                        "?useSSL=false" +
+                        "&zeroDateTimeBehavior=convertToNull" +
+                        "&useUnicode=yes" +
+                        "&autoReconnect=true" +
+                        "&characterEncoding=UTF-8" +
+                        "&characterSetResults=UTF-8");
+        ds.setUsername("root");
+        ds.setPassword("root");
+
+        return ds;
+    }
+
+    @Bean
+    public IdNext idNext(@Autowired DataSource ds) {
+        return new Seq().connGetter(new ConnGetter.DsConnGetter(ds)).table("t_seq").name("seq");
+    }
+
+    @RestController
+    public static class HelloController {
+        @Autowired IdNext idNext;
+
+        @RequestMapping("/")
+        public Long index() {
+            return idNext.next();
+        }
+    }
+}
 ```
 
 ### MySQL
@@ -209,5 +254,51 @@ SELECT worker_id_seq.nextval
 INTO :new.id
 FROM dual;
 END;
+```
 
+## 测试重复
+
+```sh
+$ gobench -l :8080 -n 500000 -t 1000 -body id.txt
+Dispatching 1000 goroutines at 2021-03-31 14:21:19.112
+500000 / 500000 [$---------------------------------] 100.00% 31863 p/s
+
+Total Requests:			500000 hits
+Successful requests:		500000 hits
+Network failed:			0 hits
+Bad requests(!2xx):		0 hits
+Successful requests rate:	31453 hits/sec
+Read throughput:		5.3 MiB/sec
+Write throughput:		2.6 MiB/sec
+Test time:			15.896s(2021-03-31 14:21:19.112-14:21:35.009)
+$ gobench -l :8080 -n 500000 -t 1000 -body id.txt
+Dispatching 1000 goroutines at 2021-03-31 14:21:36.980
+500000 / 500000 [$---------------------------------] 100.00% 45204 p/s
+
+Total Requests:			500000 hits
+Successful requests:		500000 hits
+Network failed:			0 hits
+Bad requests(!2xx):		0 hits
+Successful requests rate:	44399 hits/sec
+Read throughput:		7.5 MiB/sec
+Write throughput:		3.6 MiB/sec
+Test time:			11.261s(2021-03-31 14:21:36.980-14:21:48.242)
+$ sort id.txt| uniq -d
+$ sort id.txt| uniq | wc -l
+ 1000000
+$ gobench -l :8080 -n 500000 -t 1000 -body id.txt
+Dispatching 1000 goroutines at 2021-03-31 14:22:05.675
+500000 / 500000 [$---------------------------------] 100.00% 48375 p/s
+
+Total Requests:			500000 hits
+Successful requests:		500000 hits
+Network failed:			0 hits
+Bad requests(!2xx):		0 hits
+Successful requests rate:	47453 hits/sec
+Read throughput:		8.1 MiB/sec
+Write throughput:		3.9 MiB/sec
+Test time:			10.537s(2021-03-31 14:22:05.675-14:22:16.212)
+$ sort id.txt| uniq | wc -l
+ 1500000
+$ sort id.txt| uniq -d
 ```
