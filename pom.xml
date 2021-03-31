@@ -125,12 +125,12 @@ Will try to download it from otn-maven-repo
 Download latest jar from http://www.oracle.com/technology/software/tech/java/sqlj_jdbc/index.html.
 mvn install:install-file -Dfile=ojdbc5.jar -DgroupId=com.oracle -DartifactId=ojdbc5 -Dversion=11.2.0.3.0 -Dpackaging=jar -DgeneratePom=true
 -->
-        <dependency>
-            <groupId>com.oracle</groupId>
-            <artifactId>ojdbc5</artifactId>
-            <version>11.2.0.3.0</version>
-            <scope>test</scope>
-        </dependency>
+        <!--        <dependency>-->
+        <!--            <groupId>com.oracle</groupId>-->
+        <!--            <artifactId>ojdbc5</artifactId>-->
+        <!--            <version>11.2.0.3.0</version>-->
+        <!--            <scope>test</scope>-->
+        <!--        </dependency>-->
         <dependency>
             <groupId>org.openjdk.jmh</groupId>
             <artifactId>jmh-core</artifactId>
@@ -246,4 +246,17 @@ mvn install:install-file -Dfile=ojdbc5.jar -DgroupId=com.oracle -DartifactId=ojd
             </build>
         </profile>
     </profiles>
+
+    <distributionManagement>
+        <repository>
+            <id>releases</id>
+            <name>Nexus Release Repository</name>
+            <url>http://192.168.114.36:8088/repository/releases/</url>
+        </repository>
+        <snapshotRepository>
+            <id>snapshots</id>
+            <name>Nexus Snapshot Repository</name>
+            <url>http://192.168.114.36:8088/repository/snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
 </project>
