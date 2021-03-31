@@ -116,13 +116,13 @@ Id12.next()|1 bit  | 29 bit (s) | 1 bit    | 3 bit      | 6 bit          | 2^39=
 drop table if exists t_seq;
 create table t_seq
 (
-    name        varchar(60) primary key comment '序列名称，不用的序列，请使用不用的名字',
+    name        varchar(60) primary key comment '序列名称，不同的序列，请使用不用的名字',
     start       bigint   default 0     not null comment 'SEQ 起始值，用于重新循环',
     seq         bigint   default 0     not null comment '当前的SEQ取值',
-    step        int      default 10000 not null comment '步长',
-    water_level int      default 5000  not null comment '低于多少水位线需要补充',
-    cycle       tinyint  default 0     not null comment '是否允许循环，必须max_seq同时设置时才生效',
-    max_seq     bigint   default 0     not null comment '允许最大的序列值，0 时不校验',
+    step        int      default 10000 not null comment '步长，客户端一次取回多少作为缓存',
+    water_level int      default 5000  not null comment '客户端在低于多少水位线时需要补充',
+    cycle       tinyint  default 0     not null comment '是否循环，达到max_seq时从start重新开始，在max_seq > 0时生效',
+    max_seq     bigint   default 0     not null comment '允许最大的序列值，0 时不校验，达到最大值时，或者循环，或者抛出异常OverMaxSeqException',
     created     datetime default current_timestamp comment '创建时间',
     updated     datetime on update current_timestamp comment '更新时间'
 ) engine = innodb
