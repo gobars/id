@@ -26,19 +26,19 @@ Spring 配置:
 public class SpringAppConfig {
     @Bean
     public DataSource getDataSource() {
-        val dataSource = new DruidDataSource();
-        dataSource.setDriverClassName("com.mysql.jdbc.Driver");
-        dataSource.setUrl("jdbc:mysql://localhost:3306/id?useSSL=false&zeroDateTimeBehavior=convertToNull&useUnicode=yes&autoReconnect=true&characterEncoding=UTF-8&characterSetResults=UTF-8");
-        dataSource.setUsername("root");
-        dataSource.setPassword("root");
+        val ds = new DruidDataSource();
+        ds.setDriverClassName("com.mysql.jdbc.Driver");
+        ds.setUrl("jdbc:mysql://localhost:3306/id?useSSL=false&zeroDateTimeBehavior=convertToNull&useUnicode=yes&autoReconnect=true&characterEncoding=UTF-8&characterSetResults=UTF-8");
+        ds.setUsername("root");
+        ds.setPassword("root");
 
-        return dataSource;
+        return ds;
     }
 
     @Bean
     public IdNext idNext(@Autowired DataSource dataSource) {
-        val connGetter = new ConnGetter.DsConnGetter(dataSource);
-        val workerIdDb = new WorkerIdDb().table("worker_id").connGetter(connGetter).biz("default");
+        val cg = new ConnGetter.DsConnGetter(dataSource);
+        val workerIdDb = new WorkerIdDb().table("worker_id").connGetter(cg).biz("default");
         val spec = "epoch=20200603,timestampBits=41,backwardBits=0,workerBits=10,seqBits=12,roundMs=1";
         return new SnowflakeDb(Conf.fromSpec(spec), workerIdDb);
     }
@@ -143,8 +143,7 @@ public class Application {
     public DataSource getDataSource() {
         DruidDataSource ds = new DruidDataSource();
         ds.setDriverClassName("com.mysql.jdbc.Driver");
-        ds.setUrl(
-                "jdbc:mysql://192.168.1.1:3306/id" +
+        ds.setUrl("jdbc:mysql://192.168.1.1:3306/id" +
                         "?useSSL=false" +
                         "&zeroDateTimeBehavior=convertToNull" +
                         "&useUnicode=yes" +
@@ -153,7 +152,6 @@ public class Application {
                         "&characterSetResults=UTF-8");
         ds.setUsername("root");
         ds.setPassword("root");
-
         return ds;
     }
 
@@ -165,9 +163,8 @@ public class Application {
     @RestController
     public static class HelloController {
         @Autowired IdNext idNext;
-
-        @RequestMapping("/")
-        public Long index() {
+        
+        @RequestMapping("/") public Long index() {
             return idNext.next();
         }
     }
