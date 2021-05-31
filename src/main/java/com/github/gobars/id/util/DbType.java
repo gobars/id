@@ -11,6 +11,10 @@ public enum DbType {
   ORACLE,
   /** 当前连接的是MySQL库 */
   MYSQL,
+  DM,
+  /**金仓*/
+  KINGBASE,
+  POSTGRESQL,
   /** 未知 */
   UNKNOWN;
 
@@ -28,6 +32,10 @@ public enum DbType {
       return DbType.MYSQL;
     } else if (driverName.contains("ORACLE")) {
       return DbType.ORACLE;
+    } else if (driverName.contains("KINGBASE")){
+      return DbType.KINGBASE;
+    } else if (driverName.contains("DMDRIVER")){
+      return DbType.DM;
     }
 
     return DbType.UNKNOWN;

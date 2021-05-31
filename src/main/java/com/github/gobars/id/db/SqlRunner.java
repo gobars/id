@@ -183,7 +183,9 @@ public class SqlRunner {
 
     switch (DbType.getDbType(cnn)) {
       case MYSQL:
+      case KINGBASE:
         return cnn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+      case DM:
       case ORACLE:
         return cnn.prepareStatement(sql, new int[] {1});
       default:
