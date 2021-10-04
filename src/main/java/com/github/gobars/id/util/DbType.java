@@ -11,8 +11,9 @@ public enum DbType {
   ORACLE,
   /** 当前连接的是MySQL库 */
   MYSQL,
+  /** 达梦 */
   DM,
-  /**金仓*/
+  /** 金仓 */
   KINGBASE,
   POSTGRESQL,
   /** 未知 */

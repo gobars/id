@@ -5,7 +5,7 @@
 
     <groupId>com.github.gobars</groupId>
     <artifactId>id</artifactId>
-    <version>0.0.14-SNAPSHOT</version>
+    <version>0.0.13-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>id</name>
@@ -255,7 +255,7 @@ mvn install:install-file -Dfile=ojdbc5.jar -DgroupId=com.oracle -DartifactId=ojd
         </repository>
         <snapshotRepository>
             <id>snapshots</id>
-            <name>Internal Releases</name>
+            <name>Internal Snapshots</name>
             <url>http://192.168.131.36:8088/repository/snapshots/</url>
         </snapshotRepository>
     </distributionManagement>
