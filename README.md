@@ -10,13 +10,13 @@ id generator with time backward-compatible.
 
 ## 一、使用默认配置
 
-默认的 workerId 以此从以下方式获得（ > 0 获得成功）
+默认的 workerId 依次从以下方式获得（ > 0 表示获得成功后结束）
 
 1. 系统属性或者环境变量 `WORKERID`
 2. 本地文件 `~/.gobars_id/workerID.{workerId}`
 3. hostname命名的最后数字部分，例如app-11中的11
 4. 机器 IP 最后 8bit
-5. 随机生成
+5. 伪随机生成
 
 ```java
 import com.github.gobars.Id;
