@@ -204,7 +204,7 @@ public class Seq implements IdNext {
 
       try {
         val i = "insert " + table + "(name) values(?)";
-        r.insert(i, name);
+        r.insertNoGeneratedKey(i, name);
       } catch (SQLException e) {
         // ignore
       }

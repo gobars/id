@@ -117,6 +117,21 @@ public class SqlRunner {
     return NO_GENERATED_KEY;
   }
 
+  /***
+   * Executes an INSERT statement.
+   * @param sql The update/insert SQL
+   * @param args The arguments to be set on the statement.
+   * @return The number of rows impacted or BATCHED_RESULTS if the statements are being batched.
+   * @throws SQLException If statement preparation or execution fails
+   */
+  public int insertNoGeneratedKey(String sql, Object... args) throws SQLException{
+    @Cleanup val ps = prepareStatement(cnn, sql);
+
+    setParameters(ps, args);
+    ps.executeUpdate();
+    return NO_GENERATED_KEY;
+  }
+
   /**
    * Executes an UPDATE statement.
    *
@@ -184,6 +199,8 @@ public class SqlRunner {
     switch (DbType.getDbType(cnn)) {
       case MYSQL:
       case KINGBASE:
+      case POSTGRESQL:
+      case OSCAR:
         return cnn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
       case DM:
       case ORACLE:

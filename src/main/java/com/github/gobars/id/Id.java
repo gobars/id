@@ -14,16 +14,19 @@ public class Id {
   public final String SPEC =
       "epoch=20200603,timestampBits=41,backwardBits=2,workerBits=8,seqBits=12,roundMs=1,maxBackwardSleepMs=1000";
 
-  private final IdNext next =
-      new Snowflake(
-          Conf.fromSpec(SPEC),
-          new WorkerIdComposite(
-                  new WorkerIdEnv(),
-                  new WorkerIdLocalLockFile(),
-                  new WorkerIdHostname(),
-                  new WorkerIdIp(),
-                  new WorkerIdRandom())
-              .workerId());
+  private final IdNext next;
+
+  static {
+    next = new Snowflake(
+            Conf.fromSpec(SPEC),
+            new WorkerIdComposite(
+                    new WorkerIdEnv(),
+                    new WorkerIdLocalLockFile(),
+                    new WorkerIdHostname(),
+                    new WorkerIdIp(),
+                    new WorkerIdRandom())
+                    .workerId());
+  }
 
   /**
    * 获得下一个ID.

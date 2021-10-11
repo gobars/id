@@ -15,6 +15,7 @@ public enum DbType {
   /**金仓*/
   KINGBASE,
   POSTGRESQL,
+  OSCAR,
   /** 未知 */
   UNKNOWN;
 
@@ -36,6 +37,8 @@ public enum DbType {
       return DbType.KINGBASE;
     } else if (driverName.contains("DMDRIVER")){
       return DbType.DM;
+    } else if (driverName.contains("OSCAR")) {
+      return DbType.OSCAR;
     }
 
     return DbType.UNKNOWN;
