@@ -5,6 +5,7 @@ import lombok.SneakyThrows;
 import lombok.val;
 
 import javax.sql.DataSource;
+import java.sql.Connection;
 
 public enum DbType {
   /** 当前连接的是Oracle库 */
@@ -16,7 +17,8 @@ public enum DbType {
   /** 金仓 */
   KINGBASE,
   POSTGRESQL,
-  OSCAR,
+  /** 南大神通 */
+  SHENTONG,
   /** 未知 */
   UNKNOWN;
 
@@ -27,7 +29,7 @@ public enum DbType {
   }
 
   @SneakyThrows
-  public static DbType getDbType(java.sql.Connection conn) {
+  public static DbType getDbType(Connection conn) {
     val metaData = conn.getMetaData();
     val driverName = metaData.getDriverName().toUpperCase();
     if (driverName.contains("MYSQL")) {
@@ -39,7 +41,7 @@ public enum DbType {
     } else if (driverName.contains("DMDRIVER")){
       return DbType.DM;
     } else if (driverName.contains("OSCAR")) {
-      return DbType.OSCAR;
+      return DbType.SHENTONG;
     }
 
     return DbType.UNKNOWN;

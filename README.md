@@ -188,22 +188,6 @@ create table worker_id
   default charset = utf8mb4 comment 'worker id 分配表';
 ```
 
-or online format:
-
-```sql
-drop table if exists worker_id;
-create table worker_id
-(
-    id       bigint auto_increment primary key,
-    created  datetime default current_timestamp,
-    ip       varchar(60),
-    hostname varchar(60),
-    pid      int,
-    reason   varchar(60),
-    biz      varchar(60)
-)engine = innodb default charset = utf8mb4;
-```
-
 ### Oracle
 
 ```sql

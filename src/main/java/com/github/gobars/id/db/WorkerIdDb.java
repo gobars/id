@@ -30,6 +30,6 @@ public class WorkerIdDb implements WorkerId {
     val s = "insert into " + table + "(ip, hostname, pid, reason, biz) values (?, ?, ?, ?, ?)";
     @Cleanup val conn = connGetter.getConn();
     val r = new SqlRunner(conn, true);
-    return r.insertNoGeneratedKey(s, WorkerIdIp.LOCAL_IP, WorkerIdHostname.HOSTNAME, Pid.PROCESS_ID, reason, biz);
+    return r.insert(s, WorkerIdIp.LOCAL_IP, WorkerIdHostname.HOSTNAME, Pid.PROCESS_ID, reason, biz);
   }
 }
