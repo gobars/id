@@ -41,7 +41,7 @@ public class Seq implements IdNext {
   private long seq1;
   // 序列2
   private long seq2;
-  // 当前序列，初始值0表示未设置，1时当前使用se1, 2时当前使用seq2
+  // 当前序列，初始值0表示未设置，1时当前使用seq1, 2时当前使用seq2
   private int curr;
   // 序列1剩余
   private int avail1;

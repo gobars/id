@@ -8,7 +8,15 @@
 
 id generator with time backward-compatible.
 
-## usage
+## 一、使用默认配置
+
+默认的 workerId 以此从以下方式获得（ > 0 获得成功）
+
+1. 系统属性或者环境变量 `WORKERID`
+2. 本地文件 `~/.gobars_id/workerID.{workerId}`
+3. hostname命名的最后数字部分，例如app-11中的11
+4. 机器 IP 最后 8bit
+5. 随机生成
 
 ```java
 import com.github.gobars.Id;
@@ -16,36 +24,50 @@ import com.github.gobars.Id;
 long bizID=Id.next();
 ```
 
-## 基于数据库`worker_id`表获得一次性workerId
+## 二、基于数据库`t_worker_id`表获得一次性workerId
 
-Spring 配置:
+
+每次程序启动时，使用以下方式来获取一个新的worker_id.
+
+- `update t_worker_id set value = value + step where name ='default'`
+- `select value from t_worker_id where name = 'default'`
+- `select value from t_worker_id where name = 'default'`
+
+此实现无法知道每个worker_id目前在哪台机器哪个进程上使用，但是可以比较好地适应不同的数据库类型（MySQL, Oracle, PostgreSQL等）。
+
+```sql
+drop table if exists t_worker_id;
+create table t_worker_id
+(
+    name    varchar(60) primary key comment '序列名称，不同的序列，请使用不用的名字',
+    value   bigint   default 0 not null comment 'WORKER ID',
+    step    int      default 0 not null comment '额外步长，每次，value += extra_step + 1',
+    created datetime default current_timestamp comment '创建时间',
+    updated datetime on update current_timestamp comment '更新时间'
+) engine = innodb
+  default charset = utf8mb4 comment 'worker_id 行记录取号表';
+```
 
 ```java
+@Bean
+public IdNext idNext(@Autowired DataSource ds){
+    return new SnowflakeDbRow(Conf.fromSpec(Id.SPEC),new WorkerIdDbRow().connGetter(ds));
+}
+```
 
-@Configuration
-public class SpringAppConfig {
-    @Bean
-    public DataSource getDataSource() {
-        val ds = new DruidDataSource();
-        ds.setDriverClassName("com.mysql.jdbc.Driver");
-        ds.setUrl("jdbc:mysql://localhost:3306/id?useSSL=false&zeroDateTimeBehavior=convertToNull&useUnicode=yes&autoReconnect=true&characterEncoding=UTF-8&characterSetResults=UTF-8");
-        ds.setUsername("root");
-        ds.setPassword("root");
+使用:
 
-        return ds;
-    }
+```java
+@Bean public class XXService {
+    @Autowired IdNext id;
 
-    @Bean
-    public IdNext idNext(@Autowired DataSource dataSource) {
-        val cg = new ConnGetter.DsConnGetter(dataSource);
-        val workerIdDb = new WorkerIdDb().table("worker_id").connGetter(cg).biz("default");
-        val spec = "epoch=20200603,timestampBits=41,backwardBits=0,workerBits=10,seqBits=12,roundMs=1";
-        return new SnowflakeDb(Conf.fromSpec(spec), workerIdDb);
+    public void business() {
+        long bizID = id.next();
     }
 }
 ```
 
-Spec说明：
+### Spec说明：
 
 Spec | 值格式 | 默认值 | 说明
 ---  | --- | --- | --- 
@@ -58,31 +80,59 @@ seqBits|整型|12|自增序号占用比特位数
 maxBackwardSleepMs|整型|1000| 最大时间回拨
 timestampBy|cache/system/nano|cache|时间戳计算算法 cache: SystemClock.now(), system: System.currentMillis(),nano: System.nanoTime()
 
-使用:
+## 三、直接从数据库表 t_seq 中获取 ID 值
 
-```java
-
-@Bean
-public class XXService {
-    @Autowired
-    IdNext id;
-
-    public void business() {
-        // ...
-        long bizID = id.next();
-        // ...
-    }
-}
+```sql
+drop table if exists t_seq;
+create table t_seq
+(
+    name        varchar(60) primary key comment '序列名称，不同的序列，请使用不用的名字',
+    start       bigint   default 0     not null comment 'SEQ 起始值，用于重新循环',
+    seq         bigint   default 0     not null comment '当前的SEQ取值',
+    step        int      default 10000 not null comment '步长，客户端一次取回多少作为缓存',
+    water_level int      default 5000  not null comment '客户端在低于多少水位线时需要补充',
+    cycle       tinyint  default 0     not null comment '是否循环，达到max_seq时从start重新开始，在max_seq > 0时生效',
+    max_seq     bigint   default 0     not null comment '允许最大的序列值，0 时不校验，达到最大值时，或者循环，或者抛出异常OverMaxSeqException',
+    created     datetime default current_timestamp comment '创建时间',
+    updated     datetime on update current_timestamp comment '更新时间'
+) engine = innodb
+  default charset = utf8mb4 comment '序列取号表';
 ```
 
-## WorkerId 获取顺序
+此实现的好处：
 
-1. 系统属性或者环境变量 `WORKERID`
-1. hostname命名的最后数字部分，例如app-11中的11
-1. IPv4或者IPv6最后一个Byte
-1. 随机获取
+1. seq 范围可控，步长可控
+2. 可以创建多个序列
+3. 在加大步长时，客户端可以显著提升性能，降低对数据库的操作
 
-## 原理
+```java
+@Bean
+public IdNext idNext(@Autowired DataSource ds){
+        return new Seq().connGetter(new ConnGetter.DsConnGetter(ds)).table("t_seq").name("seq");
+        }
+```
+
+
+## 四、直接使用行记录每次自增来获取Worker ID
+
+MySQL 此表记录了每一个worker_id的使用者信息。缺点是自增长实现，在不同的数据库有不同的表达方式，比较烦人。
+
+```sql
+drop table if exists worker_id;
+create table worker_id
+(
+    id       bigint auto_increment primary key comment 'worker id',
+    created  datetime default current_timestamp comment '创建时间',
+    ip       varchar(60) comment '当前机器IP',
+    hostname varchar(60) comment '当前机器名称',
+    pid      int comment '应用程序PID',
+    reason   varchar(60) comment '申请原因 start:启动 backwards:时间回拨',
+    biz      varchar(60) comment '当前业务名称'
+) engine = innodb
+  default charset = utf8mb4 comment 'worker id 每次新插入行分配表';
+```
+
+## snowflake 原理
 
 snowflake 改进:
 
@@ -107,135 +157,6 @@ Id12.next()|1 bit  | 29 bit (s) | 1 bit    | 3 bit      | 6 bit          | 2^39=
 1. [美团技术分享：深度解密美团的分布式ID生成算法](https://zhuanlan.zhihu.com/p/83753710)
 1. [时钟回拨问题咋解决？百度开源的唯一ID生成器UidGenerator](https://zhuanlan.zhihu.com/p/77737855)
 1. [分布式ID增强篇--优化时钟回拨问题](https://www.jianshu.com/p/98c202f64652)
-
-## 脚本
-
-### 直接使用表作为序列器
-
-```sql
-drop table if exists t_seq;
-create table t_seq
-(
-    name        varchar(60) primary key comment '序列名称，不同的序列，请使用不用的名字',
-    start       bigint   default 0     not null comment 'SEQ 起始值，用于重新循环',
-    seq         bigint   default 0     not null comment '当前的SEQ取值',
-    step        int      default 10000 not null comment '步长，客户端一次取回多少作为缓存',
-    water_level int      default 5000  not null comment '客户端在低于多少水位线时需要补充',
-    cycle       tinyint  default 0     not null comment '是否循环，达到max_seq时从start重新开始，在max_seq > 0时生效',
-    max_seq     bigint   default 0     not null comment '允许最大的序列值，0 时不校验，达到最大值时，或者循环，或者抛出异常OverMaxSeqException',
-    created     datetime default current_timestamp comment '创建时间',
-    updated     datetime on update current_timestamp comment '更新时间'
-) engine = innodb
-  default charset = utf8mb4 comment '序列取号表';
-```
-
-示例代码
-
-```java
-
-@SpringBootApplication
-public class Application {
-    public static void main(String[] args) {
-        SpringApplication.run(Application.class, args);
-    }
-
-    @Bean
-    public DataSource getDataSource() {
-        DruidDataSource ds = new DruidDataSource();
-        ds.setDriverClassName("com.mysql.jdbc.Driver");
-        ds.setUrl("jdbc:mysql://192.168.1.1:3306/id" +
-                        "?useSSL=false" +
-                        "&zeroDateTimeBehavior=convertToNull" +
-                        "&useUnicode=yes" +
-                        "&autoReconnect=true" +
-                        "&characterEncoding=UTF-8" +
-                        "&characterSetResults=UTF-8");
-        ds.setUsername("root");
-        ds.setPassword("root");
-        return ds;
-    }
-
-    @Bean
-    public IdNext idNext(@Autowired DataSource ds) {
-        return new Seq().connGetter(new ConnGetter.DsConnGetter(ds)).table("t_seq").name("seq");
-    }
-
-    @RestController
-    public static class HelloController {
-        @Autowired IdNext idNext;
-        
-        @RequestMapping("/") public Long index() {
-            return idNext.next();
-        }
-    }
-}
-```
-
-### MySQL
-
-```sql
-drop table if exists worker_id;
-create table worker_id
-(
-    id       bigint auto_increment primary key comment 'worker id',
-    created  datetime default current_timestamp comment '创建时间',
-    ip       varchar(60) comment '当前机器IP',
-    hostname varchar(60) comment '当前机器名称',
-    pid      int comment '应用程序PID',
-    reason   varchar(60) comment '申请原因 start:启动 backwards:时间回拨',
-    biz      varchar(60) comment '当前业务名称'
-) engine = innodb
-  default charset = utf8mb4 comment 'worker id 分配表';
-```
-
-### Oracle
-
-```sql
-drop table worker_id;
-create table worker_id
-(
-    id       int primary key,
-    created  timestamp default current_timestamp,
-    ip       varchar2(60),
-    hostname varchar2(60),
-    pid      int,
-    reason   varchar2(60),
-    biz      varchar2(60)
-);
-
-comment
-on table worker_id IS 'worker id 分配表';
-
-comment
-on column worker_id.id IS 'worker id';
-comment
-on column worker_id.created IS '创建时间';
-comment
-on column worker_id.ip IS '当前机器IP';
-comment
-on column worker_id.hostname IS '当前机器名称';
-comment
-on column worker_id.pid IS '应用程序PID';
-comment
-on column worker_id.reason IS '申请原因 start:启动 backwards:时间回拨';
-comment
-on column worker_id.biz IS '当前业务名称';
-
-CREATE SEQUENCE worker_id_seq
-    START WITH 1
-    INCREMENT BY 1 CACHE 100;
-
-CREATE
-OR REPLACE TRIGGER trigger_worker_id_seq
-    BEFORE INSERT
-    ON worker_id
-    FOR EACH ROW
-BEGIN
-SELECT worker_id_seq.nextval
-INTO :new.id
-FROM dual;
-END;
-```
 
 ## 测试重复
 

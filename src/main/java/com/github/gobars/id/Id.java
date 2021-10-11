@@ -17,7 +17,8 @@ public class Id {
   private final IdNext next;
 
   static {
-    next = new Snowflake(
+    next =
+        new Snowflake(
             Conf.fromSpec(SPEC),
             new WorkerIdComposite(
                     new WorkerIdEnv(),
@@ -25,7 +26,7 @@ public class Id {
                     new WorkerIdHostname(),
                     new WorkerIdIp(),
                     new WorkerIdRandom())
-                    .workerId());
+                .workerId());
   }
 
   /**

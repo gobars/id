@@ -1,5 +1,3 @@
-
-
 -- drop table worker_id;
 create table worker_id
 (
@@ -38,4 +36,12 @@ begin
     from dual;
 end;
 
+
+create table t_worker_id
+(
+    name    varchar2(60) primary key,
+    value   int       default 0,
+    step    int       default 0,
+    created timestamp default current_timestamp
+);
 /
