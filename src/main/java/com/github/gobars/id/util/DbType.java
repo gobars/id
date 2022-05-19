@@ -32,13 +32,13 @@ public enum DbType {
   public static DbType getDbType(Connection conn) {
     val metaData = conn.getMetaData();
     val driverName = metaData.getDriverName().toUpperCase();
-    if (driverName.contains("MYSQL")) {
+    if (driverName.contains("MYSQL") || driverName.contains("MARIADB")) {
       return DbType.MYSQL;
     } else if (driverName.contains("ORACLE")) {
       return DbType.ORACLE;
-    } else if (driverName.contains("KINGBASE")){
+    } else if (driverName.contains("KINGBASE")) {
       return DbType.KINGBASE;
-    } else if (driverName.contains("DMDRIVER")){
+    } else if (driverName.contains("DMDRIVER")) {
       return DbType.DM;
     } else if (driverName.contains("OSCAR")) {
       return DbType.SHENTONG;
