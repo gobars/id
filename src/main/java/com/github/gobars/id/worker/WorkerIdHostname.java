@@ -19,7 +19,7 @@ import java.util.regex.Pattern;
 @Slf4j
 public class WorkerIdHostname implements WorkerId {
   public static final String HOSTNAME = getHostname();
-  private static final Pattern HOSTNAME_WORKER_ID_PATTERN = Pattern.compile("\\d+$");
+  private static final Pattern HOSTNAME_WORKER_ID_PATTERN = Pattern.compile("\\d{1,9}$");
   private static final int WORKER_ID = parseWorkerId(HOSTNAME);
 
   public static int parseWorkerId(String hostname) {
