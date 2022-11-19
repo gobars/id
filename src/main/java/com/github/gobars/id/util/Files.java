@@ -104,7 +104,8 @@ public class Files {
         } catch (OverlappingFileLockException e) {
             Util.close(f);
             return allowOverlapping;
-        } catch (Exception ignore) {
+        } catch (Exception e) {
+            log.warn("ignore exception {}", e.toString());
         }
 
         Util.close(f);
