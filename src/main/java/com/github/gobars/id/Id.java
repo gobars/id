@@ -2,6 +2,7 @@ package com.github.gobars.id;
 
 import com.github.gobars.id.conf.Conf;
 import com.github.gobars.id.worker.*;
+import com.github.ksuid.Ksuid;
 import lombok.experimental.UtilityClass;
 
 /**
@@ -36,5 +37,19 @@ public class Id {
    */
   public long next() {
     return next.next();
+  }
+
+  /**
+   * 获得下一个 KsUID.
+   * Roughly sortable by creation time 按时间排序。
+   * Can be stored as a string of 27 chars; 固定27个字符。
+   * Can be stored as an array of 20 bytes; 20个字节。
+   * String format is encoded to base-62 (0-9A-Za-z); base62 编码。
+   * String format is URL safe and has no hyphens. URL 安全。
+   *
+   * @return 下一个 KsUID.
+   */
+  public String ksuid() {
+    return Ksuid.newKsuid().toString();
   }
 }
