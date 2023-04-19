@@ -12,11 +12,23 @@ public class DbTypeTest {
     val dataSource = new DruidDataSource();
     dataSource.setDriverClassName("com.mysql.jdbc.Driver");
     dataSource.setUrl(
-        "jdbc:mysql://localhost:3306/id?useSSL=false&zeroDateTimeBehavior=convertToNull&useUnicode=yes&autoReconnect=true&characterEncoding=UTF-8&characterSetResults=UTF-8");
+        "jdbc:mysql://localhost:3306/b1?useSSL=false&zeroDateTimeBehavior=convertToNull&useUnicode=yes&autoReconnect=true&characterEncoding=UTF-8&characterSetResults=UTF-8");
     dataSource.setUsername("root");
     dataSource.setPassword("root");
 
     assertThat(DbType.getDbType(dataSource)).isEqualTo(DbType.MYSQL);
+  }
+
+  @Test
+  public void detectDbTypePostgeqSQL() {
+    val dataSource = new DruidDataSource();
+    dataSource.setDriverClassName("org.postgresql.Driver");
+    dataSource.setUrl(
+        "jdbc:postgresql://127.0.0.1:5432/b1");
+    dataSource.setUsername("root");
+    dataSource.setPassword("root");
+
+    assertThat(DbType.getDbType(dataSource)).isEqualTo(DbType.POSTGRESQL);
   }
 
   @Test

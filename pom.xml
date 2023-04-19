@@ -133,6 +133,12 @@
             <version>8.0.30</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.4.1</version>
+            <scope>test</scope>
+        </dependency>
         <!--Unfortunately due the binary license there is no public repository with the Oracle Driver JAR.
 Will try to download it from otn-maven-repo
 Download latest jar from http://www.oracle.com/technology/software/tech/java/sqlj_jdbc/index.html.
