@@ -18,7 +18,8 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-
+    container:
+      image: docker:latest
     steps:
     - uses: actions/checkout@v3
     - name: Set up JDK 11
@@ -27,5 +28,7 @@ jobs:
         java-version: '11'
         distribution: 'temurin'
         cache: maven
+    - name: Install dependencies such as mysql/postgres/oracle
+      run: sh scripts/docker-compose/up.sh
     - name: Build with Maven
       run: mvn -B package --file pom.xml
