@@ -20,6 +20,18 @@ public class DbTypeTest {
   }
 
   @Test
+  public void detectDbTypePostgeqSQL() {
+    val dataSource = new DruidDataSource();
+    dataSource.setDriverClassName("org.postgresql.Driver");
+    dataSource.setUrl(
+        "jdbc:postgresql://localhost:5432/id");
+    dataSource.setUsername("postgres");
+    dataSource.setPassword("postgres");
+
+    assertThat(DbType.getDbType(dataSource)).isEqualTo(DbType.POSTGRESQL);
+  }
+
+  @Test
   public void detectDbTypeOracle() {
     val dataSource = new DruidDataSource();
     dataSource.setDriverClassName("oracle.jdbc.OracleDriver");
