@@ -12,7 +12,7 @@ public class DbTypeTest {
     val dataSource = new DruidDataSource();
     dataSource.setDriverClassName("com.mysql.jdbc.Driver");
     dataSource.setUrl(
-        "jdbc:mysql://localhost:3306/id?useSSL=false&zeroDateTimeBehavior=convertToNull&useUnicode=yes&autoReconnect=true&characterEncoding=UTF-8&characterSetResults=UTF-8");
+        "jdbc:mysql://106.75.241.121:3306/id?useSSL=false&zeroDateTimeBehavior=convertToNull&useUnicode=yes&autoReconnect=true&characterEncoding=UTF-8&characterSetResults=UTF-8");
     dataSource.setUsername("root");
     dataSource.setPassword("root");
 
@@ -24,7 +24,7 @@ public class DbTypeTest {
     val dataSource = new DruidDataSource();
     dataSource.setDriverClassName("org.postgresql.Driver");
     dataSource.setUrl(
-        "jdbc:postgresql://localhost:5432/id");
+        "jdbc:postgresql://106.75.241.121:5432/id");
     dataSource.setUsername("postgres");
     dataSource.setPassword("postgres");
 
@@ -35,7 +35,7 @@ public class DbTypeTest {
   public void detectDbTypeOracle() {
     val dataSource = new DruidDataSource();
     dataSource.setDriverClassName("oracle.jdbc.OracleDriver");
-    dataSource.setUrl("jdbc:oracle:thin:@127.0.0.1:1521:xe");
+    dataSource.setUrl("jdbc:oracle:thin:@106.75.241.121:1521:xe");
     dataSource.setUsername("system");
     dataSource.setPassword("oracle");
 

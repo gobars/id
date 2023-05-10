@@ -142,7 +142,7 @@ public class SqlRunner {
    * Statement stmt = connection.createStatement();
    * stmt.executeUpdate(sql, Statement.RETURN_GENERATED_KEYS);
    * ResultSet rs = stmt.getGeneratedKeys();
-   * oracle-ddl.sql.ROWID rid = (oracle-ddl.sql.ROWID) rs.getObject(1); //getLong and getInt fail
+   * oracle-postgres.sql.ROWID rid = (oracle-postgres.sql.ROWID) rs.getObject(1); //getLong and getInt fail
    *
    * // The following fail
    * // long l = rid.longValue();

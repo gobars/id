@@ -1,0 +1,15 @@
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: docker:latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Install dependencies such as mysql/postgres/oracle
+        run: |
+          sh scripts/docker-compose/up.sh
+      - name: Build and test
+        run: |
+          mvn clean test
+          # Run other Maven commands as needed
