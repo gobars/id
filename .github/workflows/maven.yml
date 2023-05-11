@@ -27,5 +27,17 @@ jobs:
         java-version: '11'
         distribution: 'temurin'
         cache: maven
+    - name: 安装 docker 环境
+        run: |
+          sudo apt update
+          sudo apt install docker-ce docker-ce-cli containerd.io
+          sudo systemctl status docker
+    - name: 安装 docker-compose 环境
+        run: |
+          sudo curl -L "https://github.com/docker/compose/releases/download/1.25.5/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          sudo chmod +x /usr/local/bin/docker-compose
+          docker-compose --version
+    - name: Install dependencies such as mysql/postgres/oracle
+        run: sh scripts/docker-compose/up.sh
     - name: Build with Maven
       run: mvn -B package --file pom.xml
