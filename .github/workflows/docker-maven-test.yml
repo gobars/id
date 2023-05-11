@@ -8,7 +8,18 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: dockette/mvn
+
+      # 定义容器环境，安装 java 8、docker 并启动服务容器
+      container:
+        image: ubuntu:latest
+        env:
+          TZ: Asia/Shanghai
+        volumes:
+          - /var/run/docker.sock:/var/run/docker.sock
+        before_script:
+          - |
+            sh scripts/docker-compose/up.sh
+
     steps:
       # Downloads a copy of the code in your repository before running CI tests
       - name: Check out repository code
@@ -18,9 +29,6 @@ jobs:
         with:
           java-version: '11'
           distribution: 'temurin'
-      - name: Install dependencies such as mysql/postgres/oracle
-        run: |
-          sh scripts/docker-compose/up.sh
       - name: Clean and Test
         run: |
           mvn clean test
