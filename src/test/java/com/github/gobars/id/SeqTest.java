@@ -5,6 +5,7 @@ import com.github.gobars.id.conf.ConnGetter;
 import com.github.gobars.id.db.Seq;
 import lombok.val;
 import org.junit.Test;
+import org.slf4j.Logger;
 
 public class SeqTest {
   public static final int SIZE = 100000;
