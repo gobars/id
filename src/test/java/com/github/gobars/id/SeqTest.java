@@ -5,6 +5,7 @@ import com.github.gobars.id.conf.ConnGetter;
 import com.github.gobars.id.db.Seq;
 import lombok.val;
 import org.junit.Test;
+import org.slf4j.Logger;
 
 public class SeqTest {
   public static final int SIZE = 100000;
@@ -14,9 +15,9 @@ public class SeqTest {
     val ds = new DruidDataSource();
     ds.setDriverClassName("com.mysql.jdbc.Driver");
     ds.setUrl(
-        "jdbc:mysql://192.168.126.182:3309/id?useSSL=false&zeroDateTimeBehavior=convertToNull&useUnicode=yes&autoReconnect=true&characterEncoding=UTF-8&characterSetResults=UTF-8");
+        "jdbc:mysql://localhost:3306/id?useSSL=false&zeroDateTimeBehavior=convertToNull&useUnicode=yes&autoReconnect=true&characterEncoding=UTF-8&characterSetResults=UTF-8");
     ds.setUsername("root");
-    ds.setPassword("1qazzaq1");
+    ds.setPassword("root");
 
     val connGetter = new ConnGetter.DsConnGetter(ds);
 

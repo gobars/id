@@ -1,5 +1,6 @@
 package com.github.gobars.id.util;
 
+import java.sql.SQLException;
 import lombok.Cleanup;
 import lombok.SneakyThrows;
 import lombok.val;
@@ -22,6 +23,8 @@ public enum DbType {
   /** 未知 */
   UNKNOWN;
 
+
+
   @SneakyThrows
   public static DbType getDbType(DataSource dataSource) {
     @Cleanup val conn = dataSource.getConnection();
@@ -31,7 +34,22 @@ public enum DbType {
   @SneakyThrows
   public static DbType getDbType(Connection conn) {
     val metaData = conn.getMetaData();
-    val driverName = metaData.getDriverName().toUpperCase();
+    DbType dbType = getDbTypeByDatabaseProductName(metaData.getDatabaseProductName());
+    if (!DbType.UNKNOWN.equals(dbType)) {
+      return dbType;
+    }
+    return getDbTypeByDriverName(metaData.getDriverName());
+  }
+  public static DbType getDbTypeByDatabaseProductName(String productName) {
+    for (DbType type : DbType.values()) {
+      if (type.name().equalsIgnoreCase(productName)) {
+        return type;
+      }
+    }
+    return DbType.UNKNOWN;
+  }
+  private static DbType getDbTypeByDriverName(String dn) throws SQLException {
+    val driverName = dn.toUpperCase();
     if (driverName.contains("MYSQL") || driverName.contains("MARIADB")) {
       return DbType.MYSQL;
     } else if (driverName.contains("ORACLE")) {
@@ -42,6 +60,8 @@ public enum DbType {
       return DbType.DM;
     } else if (driverName.contains("OSCAR")) {
       return DbType.SHENTONG;
+    } else if (driverName.contains("POSTGRESQL")) {
+      return DbType.POSTGRESQL;
     }
 
     return DbType.UNKNOWN;
