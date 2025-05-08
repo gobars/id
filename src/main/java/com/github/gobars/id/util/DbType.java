@@ -42,6 +42,10 @@ public enum DbType {
       return DbType.DM;
     } else if (driverName.contains("OSCAR")) {
       return DbType.SHENTONG;
+    } else if  (driverName.contains("POSTGRESQL")) {
+      return DbType.POSTGRESQL;
+    } else if (driverName.contains("DM")) {
+      return DbType.DM;
     }
 
     return DbType.UNKNOWN;
